@@ -14,6 +14,8 @@ Write-Host "This will remove:" -ForegroundColor Yellow
 Write-Host "  - SuperClaude commands (~\.claude\commands\sc\)"
 Write-Host "  - CLAUDE.md configuration (~\.claude\CLAUDE.md)"
 Write-Host "  - Spec Kit CLI (specify-cli)"
+Write-Host "  - Claude-Z script (~\.local\bin\claude-z.*)"
+Write-Host "  - Z.AI configuration (~\.config\zai\)"
 Write-Host ""
 
 $response = Read-Host "Continue with uninstall? [y/N]"
@@ -58,6 +60,31 @@ try {
     }
 } catch {
     Write-Host "[!] Could not remove Spec Kit" -ForegroundColor Yellow
+}
+
+# Remove Claude-Z scripts
+$claudeZPs1 = "$env:USERPROFILE\.local\bin\claude-z.ps1"
+$claudeZCmd = "$env:USERPROFILE\.local\bin\claude-z.cmd"
+if (Test-Path $claudeZPs1) {
+    Remove-Item -Force $claudeZPs1
+    Write-Host "[OK] Claude-Z script removed (ps1)" -ForegroundColor Green
+} else {
+    Write-Host "[!] Claude-Z script not found (ps1)" -ForegroundColor Yellow
+}
+if (Test-Path $claudeZCmd) {
+    Remove-Item -Force $claudeZCmd
+    Write-Host "[OK] Claude-Z wrapper removed (cmd)" -ForegroundColor Green
+} else {
+    Write-Host "[!] Claude-Z wrapper not found (cmd)" -ForegroundColor Yellow
+}
+
+# Remove Z.AI configuration
+$zaiConfigDir = "$env:USERPROFILE\.config\zai"
+if (Test-Path $zaiConfigDir) {
+    Remove-Item -Recurse -Force $zaiConfigDir
+    Write-Host "[OK] Z.AI configuration removed" -ForegroundColor Green
+} else {
+    Write-Host "[!] Z.AI configuration not found" -ForegroundColor Yellow
 }
 
 Write-Host ""

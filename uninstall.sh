@@ -25,6 +25,8 @@ echo -e "${YELLOW}This will remove:${NC}"
 echo "  • SuperClaude commands (~/.claude/commands/sc/)"
 echo "  • CLAUDE.md configuration (~/.claude/CLAUDE.md)"
 echo "  • Spec Kit CLI (specify-cli)"
+echo "  • Claude-Z script (~/.local/bin/claude-z)"
+echo "  • Z.AI configuration (~/.config/zai/)"
 echo ""
 
 read -p "Continue with uninstall? [y/N] " -n 1 -r
@@ -62,6 +64,22 @@ elif command -v pip3 >/dev/null 2>&1; then
     pip3 uninstall specify-cli -y 2>/dev/null && echo -e "${GREEN}[✓]${NC} Spec Kit removed (pip3)" || true
 else
     echo -e "${YELLOW}[!]${NC} Could not remove Spec Kit (no package manager found)"
+fi
+
+# Remove Claude-Z
+if [ -f "$HOME/.local/bin/claude-z" ]; then
+    rm -f "$HOME/.local/bin/claude-z"
+    echo -e "${GREEN}[✓]${NC} Claude-Z script removed"
+else
+    echo -e "${YELLOW}[!]${NC} Claude-Z script not found"
+fi
+
+# Remove Z.AI configuration
+if [ -d "$HOME/.config/zai" ]; then
+    rm -rf "$HOME/.config/zai"
+    echo -e "${GREEN}[✓]${NC} Z.AI configuration removed"
+else
+    echo -e "${YELLOW}[!]${NC} Z.AI configuration not found"
 fi
 
 echo ""
