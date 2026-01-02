@@ -138,11 +138,56 @@ function Test-Dependencies {
         $script:PACKAGE_MANAGER = "pip3"
     }
 
+    # Check npm (needed for Claude Code)
+    $hasNpm = Test-Command "npm"
+    if ($hasNpm) {
+        $npmVersion = npm --version 2>&1
+        Write-Success "npm found: v$npmVersion"
+    } else {
+        Write-Warning "npm not found - required for Claude Code installation"
+    }
+
     # Check Claude Code
     if (Test-Command "claude") {
-        Write-Success "Claude Code found"
+        $claudeVersion = claude --version 2>&1 | Select-Object -First 1
+        Write-Success "Claude Code found: $claudeVersion"
+
+        # Offer to update
+        if ($hasNpm) {
+            $response = Read-Host "Update Claude Code to latest? [y/N]"
+            if ($response -eq 'y' -or $response -eq 'Y') {
+                Write-Info "Updating Claude Code..."
+                try {
+                    npm update -g @anthropic-ai/claude-code 2>&1 | Out-Null
+                    Write-Success "Claude Code updated"
+                } catch {
+                    Write-Warning "Update failed, continuing..."
+                }
+            }
+        }
     } else {
-        Write-Warning "Claude Code not found - install from https://claude.com/code"
+        Write-Warning "Claude Code not found"
+
+        # Try to install Claude Code
+        if ($hasNpm) {
+            $response = Read-Host "Install Claude Code via npm? [Y/n]"
+            if ($response -ne 'n' -and $response -ne 'N') {
+                Write-Info "Installing Claude Code..."
+                try {
+                    npm install -g @anthropic-ai/claude-code 2>&1 | Out-Null
+                    if (Test-Command "claude") {
+                        Write-Success "Claude Code installed successfully"
+                    } else {
+                        Write-Warning "Installation completed but 'claude' not in PATH. Restart PowerShell."
+                    }
+                } catch {
+                    Write-Error "Failed to install Claude Code: $_"
+                }
+            }
+        } else {
+            Write-Info "Install manually: https://claude.com/code"
+            Write-Info "Or install Node.js/npm first, then run: npm install -g @anthropic-ai/claude-code"
+        }
     }
 
     # Check winget (for installing missing deps)
