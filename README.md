@@ -22,6 +22,11 @@ ZuppaClaude, Claude Code deneyiminizi güçlendiren araçları tek komutla kurar
 curl -fsSL https://raw.githubusercontent.com/hasankaantan/zuppaclaude/main/install.sh | bash
 ```
 
+**Alternatif (jsDelivr CDN):**
+```bash
+curl -fsSL https://cdn.jsdelivr.net/gh/hasankaantan/zuppaclaude@main/install.sh | bash
+```
+
 **Windows (PowerShell):**
 ```powershell
 irm https://raw.githubusercontent.com/hasankaantan/zuppaclaude/main/install.ps1 | iex
@@ -154,6 +159,11 @@ ZuppaClaude installs tools to supercharge your Claude Code experience with a sin
 **macOS / Linux:**
 ```bash
 curl -fsSL https://raw.githubusercontent.com/hasankaantan/zuppaclaude/main/install.sh | bash
+```
+
+**Alternative (jsDelivr CDN):**
+```bash
+curl -fsSL https://cdn.jsdelivr.net/gh/hasankaantan/zuppaclaude@main/install.sh | bash
 ```
 
 **Windows (PowerShell):**
