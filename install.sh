@@ -182,17 +182,20 @@ check_dependencies() {
 
         # Try to install missing deps
         if [ "$(uname -s)" = "Darwin" ] && command_exists brew; then
-            read -p "Install missing dependencies with Homebrew? [y/N] " -n 1 -r
-            echo
-            if [[ $REPLY =~ ^[Yy]$ ]]; then
-                for dep in "${missing_deps[@]}"; do
-                    log_info "Installing $dep..."
-                    brew install "$dep" || log_error "Failed to install $dep"
-                done
+            if [ -t 0 ]; then
+                read -p "Install missing dependencies with Homebrew? [y/N] " -n 1 -r
+                echo
+                if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+                    log_error "Please install missing dependencies and run again."
+                    exit 1
+                fi
             else
-                log_error "Please install missing dependencies and run again."
-                exit 1
+                log_info "Auto-installing missing dependencies with Homebrew..."
             fi
+            for dep in "${missing_deps[@]}"; do
+                log_info "Installing $dep..."
+                brew install "$dep" || log_error "Failed to install $dep"
+            done
         else
             log_error "Please install missing dependencies and run again."
             exit 1
@@ -589,40 +592,55 @@ main() {
     echo "  • Claude-Z (optional - z.ai backend)"
     echo ""
 
-    read -p "Continue with installation? [Y/n] " -n 1 -r
-    echo
-    if [[ $REPLY =~ ^[Nn]$ ]]; then
-        log_info "Installation cancelled."
-        exit 0
-    fi
-
-    # Ask about Claude-Z / z.ai
-    echo ""
-    echo -e "${CYAN}═══════════════════════════════════════════════════════════════${NC}"
-    echo -e "${CYAN}  Claude-Z Setup (Optional)${NC}"
-    echo -e "${CYAN}═══════════════════════════════════════════════════════════════${NC}"
-    echo ""
-    echo "Claude-Z allows you to use Claude Code with z.ai backend."
-    echo "This provides additional MCP servers and features."
-    echo ""
-    read -p "Do you want to install Claude-Z? [y/N] " -n 1 -r
-    echo
-
-    if [[ $REPLY =~ ^[Yy]$ ]]; then
-        echo ""
-        echo "Enter your Z.AI API key (get it from https://z.ai):"
-        read -s -p "API Key: " ZAI_API_KEY
-        echo ""
-
-        if [ -n "$ZAI_API_KEY" ]; then
-            INSTALL_CLAUDE_Z=true
-            log_success "Z.AI API key received"
-        else
-            log_warning "No API key provided, skipping Claude-Z"
-            INSTALL_CLAUDE_Z=false
+    # Handle piped input (curl | bash)
+    if [ -t 0 ]; then
+        read -p "Continue with installation? [Y/n] " -n 1 -r
+        echo
+        if [[ $REPLY =~ ^[Nn]$ ]]; then
+            log_info "Installation cancelled."
+            exit 0
         fi
     else
-        log_info "Skipping Claude-Z installation"
+        log_info "Running in non-interactive mode (curl | bash)"
+    fi
+
+    # Ask about Claude-Z / z.ai (only in interactive mode)
+    if [ -t 0 ]; then
+        echo ""
+        echo -e "${CYAN}═══════════════════════════════════════════════════════════════${NC}"
+        echo -e "${CYAN}  Claude-Z Setup (Optional)${NC}"
+        echo -e "${CYAN}═══════════════════════════════════════════════════════════════${NC}"
+        echo ""
+        echo "Claude-Z allows you to use Claude Code with z.ai backend."
+        echo "This provides additional MCP servers and features."
+        echo ""
+        read -p "Do you want to install Claude-Z? [y/N] " -n 1 -r
+        echo
+
+        if [[ $REPLY =~ ^[Yy]$ ]]; then
+            echo ""
+            echo "Enter your Z.AI API key (get it from https://z.ai):"
+            read -s -p "API Key: " ZAI_API_KEY
+            echo ""
+
+            if [ -n "$ZAI_API_KEY" ]; then
+                INSTALL_CLAUDE_Z=true
+                log_success "Z.AI API key received"
+            else
+                log_warning "No API key provided, skipping Claude-Z"
+                INSTALL_CLAUDE_Z=false
+            fi
+        else
+            log_info "Skipping Claude-Z installation"
+        fi
+    else
+        # Non-interactive: Check for ZAI_API_KEY env variable
+        if [ -n "$ZAI_API_KEY" ]; then
+            INSTALL_CLAUDE_Z=true
+            log_info "Using ZAI_API_KEY from environment"
+        else
+            log_info "Skipping Claude-Z (set ZAI_API_KEY env var to enable)"
+        fi
     fi
 
     check_dependencies
