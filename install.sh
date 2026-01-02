@@ -159,7 +159,26 @@ check_dependencies() {
     if command_exists claude; then
         log_success "Claude Code found"
     else
-        log_warning "Claude Code not found - install from https://claude.com/code"
+        log_warning "Claude Code not found"
+        # Try to install Claude Code
+        if command_exists npm; then
+            echo -n "Install Claude Code via npm? [Y/n] "
+            read -n 1 -r REPLY < /dev/tty 2>/dev/null || REPLY="y"
+            echo
+            if [[ ! $REPLY =~ ^[Nn]$ ]]; then
+                log_info "Installing Claude Code..."
+                npm install -g @anthropic-ai/claude-code && log_success "Claude Code installed" || log_error "Failed to install Claude Code"
+            fi
+        else
+            log_info "Install manually: https://claude.com/code"
+        fi
+    fi
+
+    # Check for Node.js/npm
+    if command_exists npm; then
+        log_success "npm found: $(npm --version)"
+    else
+        log_warning "npm not found - Claude Code auto-install unavailable"
     fi
 
     # Check for Homebrew (macOS)
