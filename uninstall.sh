@@ -29,7 +29,8 @@ echo "  • Claude-Z script (~/.local/bin/claude-z)"
 echo "  • Z.AI configuration (~/.config/zai/)"
 echo ""
 
-read -p "Continue with uninstall? [y/N] " -n 1 -r
+echo -n "Continue with uninstall? [y/N] "
+read -n 1 -r REPLY < /dev/tty 2>/dev/null || REPLY="n"
 echo
 if [[ ! $REPLY =~ ^[Yy]$ ]]; then
     echo -e "${CYAN}Uninstall cancelled.${NC}"
