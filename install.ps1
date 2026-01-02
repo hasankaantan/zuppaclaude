@@ -625,12 +625,10 @@ function Main {
     $response = Read-Host "Do you want to install Claude-Z? [y/N]"
     if ($response -eq 'y' -or $response -eq 'Y') {
         Write-Host ""
-        Write-Host "Enter your Z.AI API key (get it from https://z.ai):"
-        $secureKey = Read-Host "API Key" -AsSecureString
-        $BSTR = [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($secureKey)
-        $script:ZAI_API_KEY = [System.Runtime.InteropServices.Marshal]::PtrToStringAuto($BSTR)
+        Write-Host "Enter your Z.AI API key (get it from https://z.ai):" -ForegroundColor Cyan
+        $script:ZAI_API_KEY = Read-Host "API Key"
 
-        if ($script:ZAI_API_KEY) {
+        if ($script:ZAI_API_KEY -and $script:ZAI_API_KEY.Trim() -ne "") {
             $script:INSTALL_CLAUDE_Z = $true
             Write-Success "Z.AI API key received"
         } else {
