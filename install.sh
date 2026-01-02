@@ -157,7 +157,18 @@ check_dependencies() {
 
     # Check for Claude Code
     if command_exists claude; then
-        log_success "Claude Code found"
+        CLAUDE_VERSION=$(claude --version 2>/dev/null | head -1 || echo "unknown")
+        log_success "Claude Code found: $CLAUDE_VERSION"
+        # Offer to update
+        if command_exists npm; then
+            echo -n "Update Claude Code to latest? [y/N] "
+            read -n 1 -r REPLY < /dev/tty 2>/dev/null || REPLY="n"
+            echo
+            if [[ $REPLY =~ ^[Yy]$ ]]; then
+                log_info "Updating Claude Code..."
+                npm update -g @anthropic-ai/claude-code && log_success "Claude Code updated" || log_warning "Update failed, continuing..."
+            fi
+        fi
     else
         log_warning "Claude Code not found"
         # Try to install Claude Code
