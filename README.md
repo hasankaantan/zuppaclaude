@@ -301,6 +301,7 @@ Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 
 ## Credits
 
+- [Claude Code](https://claude.ai/code) - Anthropic
 - [SuperClaude Framework](https://github.com/SuperClaude-Org/SuperClaude_Framework)
 - [GitHub Spec Kit](https://github.com/github/spec-kit)
 - [z.ai](https://z.ai)
