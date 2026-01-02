@@ -19,7 +19,7 @@ $CLAUDE_DIR = "$env:USERPROFILE\.claude"
 $COMMANDS_DIR = "$CLAUDE_DIR\commands"
 $ZAI_CONFIG_DIR = "$env:USERPROFILE\.config\zai"
 $SUPERCLAUDE_REPO = "https://github.com/SuperClaude-Org/SuperClaude_Framework/archive/refs/heads/master.zip"
-$ZUPPACLAUDE_REPO = "https://raw.githubusercontent.com/hktdevv/zuppaclaude/main"
+$ZUPPACLAUDE_REPO = "https://raw.githubusercontent.com/hasankaantan/zuppaclaude/main"
 
 # Global flags
 $script:INSTALL_CLAUDE_Z = $false

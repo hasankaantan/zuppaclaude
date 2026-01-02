@@ -30,7 +30,7 @@ CLAUDE_DIR="$HOME/.claude"
 COMMANDS_DIR="$CLAUDE_DIR/commands"
 ZAI_CONFIG_DIR="$HOME/.config/zai"
 SUPERCLAUDE_REPO="https://github.com/SuperClaude-Org/SuperClaude_Framework.git"
-ZUPPACLAUDE_REPO="https://raw.githubusercontent.com/hktdevv/zuppaclaude/main"
+ZUPPACLAUDE_REPO="https://raw.githubusercontent.com/hasankaantan/zuppaclaude/main"
 
 # Global flags
 INSTALL_CLAUDE_Z=false

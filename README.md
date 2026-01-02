@@ -1,51 +1,180 @@
 # ZuppaClaude
 
-> Claude Code Power-Up Installer - SuperClaude + Spec Kit + Custom Configuration
+> Claude Code için tek komutla kurulum paketi - SuperClaude + Spec Kit + Claude-Z
 
-One command to supercharge your Claude Code experience.
+---
 
-## Quick Install
+## Türkçe
 
-### macOS / Linux
+### Nedir?
+
+ZuppaClaude, Claude Code deneyiminizi güçlendiren araçları tek komutla kurar:
+
+- **SuperClaude**: 30+ slash komutu ile gelişmiş iş akışları
+- **Spec Kit**: Spec-driven development CLI aracı
+- **Claude-Z**: z.ai backend desteği (opsiyonel)
+- **CLAUDE.md**: Optimize edilmiş sistem talimatları
+
+### Hızlı Kurulum
+
+**macOS / Linux:**
 ```bash
-curl -fsSL https://raw.githubusercontent.com/hktdevv/zuppaclaude/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/hasankaantan/zuppaclaude/main/install.sh | bash
 ```
 
-### Windows (PowerShell)
+**Windows (PowerShell):**
 ```powershell
-irm https://raw.githubusercontent.com/hktdevv/zuppaclaude/main/install.ps1 | iex
+irm https://raw.githubusercontent.com/hasankaantan/zuppaclaude/main/install.ps1 | iex
 ```
 
-Or download and run:
+### Gereksinimler
+
+Kurulum scripti eksik bağımlılıkları otomatik kontrol eder ve kurar:
+
+| Gereksinim | Açıklama |
+|------------|----------|
+| **OS** | macOS, Linux veya Windows 10+ |
+| **Python** | 3.8 veya üzeri |
+| **git** | Versiyon kontrol |
+| **Claude Code** | Anthropic CLI (önerilir) |
+
+### Kurulum Sonrası
+
+1. **Claude Code'u yeniden başlat**
+
+2. **SuperClaude test et:**
+   ```
+   /sc:help
+   ```
+
+3. **Spec Kit test et:**
+   ```bash
+   specify --help
+   ```
+
+4. **Claude-Z test et (kurulduysa):**
+   ```bash
+   claude-z
+   ```
+
+### SuperClaude Komutları
+
+#### Planlama & Tasarım
+| Komut | Açıklama |
+|-------|----------|
+| `/sc:brainstorm` | Fikir geliştirme |
+| `/sc:design` | Mimari tasarım |
+| `/sc:estimate` | Zaman/kaynak tahmini |
+| `/sc:spec-panel` | Spesifikasyon paneli |
+
+#### Geliştirme
+| Komut | Açıklama |
+|-------|----------|
+| `/sc:implement` | Kod implementasyonu |
+| `/sc:build` | Build ve derleme |
+| `/sc:improve` | Kod iyileştirme |
+| `/sc:explain` | Kod açıklama |
+
+#### Test & Kalite
+| Komut | Açıklama |
+|-------|----------|
+| `/sc:test` | Test oluşturma |
+| `/sc:analyze` | Kod analizi |
+| `/sc:troubleshoot` | Hata ayıklama |
+| `/sc:reflect` | Retrospektif |
+
+#### Proje Yönetimi
+| Komut | Açıklama |
+|-------|----------|
+| `/sc:task` | Görev yönetimi |
+| `/sc:workflow` | İş akışı yönetimi |
+| `/sc:pm` | Proje yönetimi |
+
+### Spec Kit İş Akışı
+
+```bash
+specify init         # Proje başlat
+specify constitution # Proje kuralları
+specify spec         # Fonksiyonel gereksinimler
+specify plan         # Teknik plan
+specify tasks        # Görev breakdown
+```
+
+### Claude-Z (z.ai Backend)
+
+Kurulum sırasında Z.AI API key'inizi girmeniz istenir (https://z.ai adresinden alın).
+
+```bash
+# z.ai backend ile Claude Code çalıştır
+claude-z
+```
+
+**Sağladığı MCP Serverlar:**
+- `web-search-prime` - Gelişmiş web arama
+- `web-reader` - Web sayfası okuma
+- `zread` - Doküman okuma
+- `zai-mcp-server` - Z.AI MCP entegrasyonu
+
+### Kaldırma
+
+**macOS / Linux:**
+```bash
+curl -fsSL https://raw.githubusercontent.com/hasankaantan/zuppaclaude/main/uninstall.sh | bash
+```
+
+**Windows:**
 ```powershell
-Invoke-WebRequest -Uri "https://raw.githubusercontent.com/hktdevv/zuppaclaude/main/install.ps1" -OutFile "install.ps1"
-.\install.ps1
+irm https://raw.githubusercontent.com/hasankaantan/zuppaclaude/main/uninstall.ps1 | iex
 ```
 
-## What's Included
+### Dosya Konumları
 
-| Component | Description |
-|-----------|-------------|
-| **SuperClaude** | 30+ slash commands for enhanced workflows |
-| **Spec Kit** | Spec-driven development CLI tool |
-| **CLAUDE.md** | Optimized system instructions |
-| **Claude-Z** | Optional z.ai backend with MCP servers |
+| Dosya | macOS/Linux | Windows |
+|-------|-------------|---------|
+| SuperClaude | `~/.claude/commands/sc/` | `%USERPROFILE%\.claude\commands\sc\` |
+| Konfigürasyon | `~/.claude/CLAUDE.md` | `%USERPROFILE%\.claude\CLAUDE.md` |
+| Claude-Z | `~/.local/bin/claude-z` | `%USERPROFILE%\.local\bin\claude-z.cmd` |
+| Z.AI Config | `~/.config/zai/` | `%USERPROFILE%\.config\zai\` |
 
-## Requirements
+---
+
+## English
+
+### What is it?
+
+ZuppaClaude installs tools to supercharge your Claude Code experience with a single command:
+
+- **SuperClaude**: 30+ slash commands for enhanced workflows
+- **Spec Kit**: Spec-driven development CLI tool
+- **Claude-Z**: z.ai backend support (optional)
+- **CLAUDE.md**: Optimized system instructions
+
+### Quick Install
+
+**macOS / Linux:**
+```bash
+curl -fsSL https://raw.githubusercontent.com/hasankaantan/zuppaclaude/main/install.sh | bash
+```
+
+**Windows (PowerShell):**
+```powershell
+irm https://raw.githubusercontent.com/hasankaantan/zuppaclaude/main/install.ps1 | iex
+```
+
+### Requirements
 
 The installer automatically checks and installs missing dependencies:
 
-| Requirement | macOS/Linux | Windows |
-|-------------|-------------|---------|
-| **OS** | macOS, Linux | Windows 10+ |
-| **Python** | 3.8+ | 3.8+ |
-| **git** | Required | Required |
-| **curl** | Required | - |
-| **Package Manager** | uv/pipx/pip (auto-install) | uv/pipx/pip (auto-install) |
+| Requirement | Description |
+|-------------|-------------|
+| **OS** | macOS, Linux, or Windows 10+ |
+| **Python** | 3.8 or higher |
+| **git** | Version control |
+| **Claude Code** | Anthropic CLI (recommended) |
 
-## After Installation
+### After Installation
 
-1. **Restart Claude Code** to activate all features
+1. **Restart Claude Code**
 
 2. **Test SuperClaude:**
    ```
@@ -57,9 +186,14 @@ The installer automatically checks and installs missing dependencies:
    specify --help
    ```
 
-## SuperClaude Commands
+4. **Test Claude-Z (if installed):**
+   ```bash
+   claude-z
+   ```
 
-### Planning & Design
+### SuperClaude Commands
+
+#### Planning & Design
 | Command | Description |
 |---------|-------------|
 | `/sc:brainstorm` | Idea development |
@@ -67,7 +201,7 @@ The installer automatically checks and installs missing dependencies:
 | `/sc:estimate` | Time/resource estimation |
 | `/sc:spec-panel` | Specification panel |
 
-### Development
+#### Development
 | Command | Description |
 |---------|-------------|
 | `/sc:implement` | Code implementation |
@@ -75,7 +209,7 @@ The installer automatically checks and installs missing dependencies:
 | `/sc:improve` | Code improvement |
 | `/sc:explain` | Code explanation |
 
-### Testing & Quality
+#### Testing & Quality
 | Command | Description |
 |---------|-------------|
 | `/sc:test` | Test creation |
@@ -83,116 +217,83 @@ The installer automatically checks and installs missing dependencies:
 | `/sc:troubleshoot` | Debugging |
 | `/sc:reflect` | Retrospective |
 
-### Project Management
+#### Project Management
 | Command | Description |
 |---------|-------------|
 | `/sc:task` | Task management |
 | `/sc:workflow` | Workflow management |
 | `/sc:pm` | Project management |
 
-## Spec Kit Workflow
+### Spec Kit Workflow
 
 ```bash
-# Initialize project
-specify init
-
-# Define project constitution
-specify constitution
-
-# Create specifications
-specify spec
-
-# Generate implementation plan
-specify plan
-
-# Break down into tasks
-specify tasks
+specify init         # Initialize project
+specify constitution # Project rules
+specify spec         # Functional requirements
+specify plan         # Technical plan
+specify tasks        # Task breakdown
 ```
 
-## Claude-Z (z.ai Backend)
+### Claude-Z (z.ai Backend)
 
-Claude-Z lets you use Claude Code with the z.ai backend, providing additional MCP servers.
-
-### Setup
 During installation, you'll be asked for your Z.AI API key (get it from https://z.ai).
 
-### Usage
 ```bash
 # Run Claude Code with z.ai backend
 claude-z
-
-# Pass arguments
-claude-z --help
 ```
 
-### What Claude-Z Provides
-- **web-search-prime** - Enhanced web search
-- **web-reader** - Web page reading
-- **zread** - Document reading
-- **zai-mcp-server** - Z.AI MCP integration
+**Provided MCP Servers:**
+- `web-search-prime` - Enhanced web search
+- `web-reader` - Web page reading
+- `zread` - Document reading
+- `zai-mcp-server` - Z.AI MCP integration
 
-## Uninstall
+### Uninstall
 
-### macOS / Linux
+**macOS / Linux:**
 ```bash
-curl -fsSL https://raw.githubusercontent.com/hktdevv/zuppaclaude/main/uninstall.sh | bash
+curl -fsSL https://raw.githubusercontent.com/hasankaantan/zuppaclaude/main/uninstall.sh | bash
 ```
 
-### Windows (PowerShell)
+**Windows:**
 ```powershell
-irm https://raw.githubusercontent.com/hktdevv/zuppaclaude/main/uninstall.ps1 | iex
+irm https://raw.githubusercontent.com/hasankaantan/zuppaclaude/main/uninstall.ps1 | iex
 ```
 
-### Manual Uninstall
-```bash
-# macOS/Linux
-rm -rf ~/.claude/commands/sc
-rm ~/.claude/CLAUDE.md
-uv tool uninstall specify-cli
-
-# Windows (PowerShell)
-Remove-Item -Recurse ~\.claude\commands\sc
-Remove-Item ~\.claude\CLAUDE.md
-uv tool uninstall specify-cli
-```
-
-## File Locations
+### File Locations
 
 | File | macOS/Linux | Windows |
 |------|-------------|---------|
 | SuperClaude | `~/.claude/commands/sc/` | `%USERPROFILE%\.claude\commands\sc\` |
 | Configuration | `~/.claude/CLAUDE.md` | `%USERPROFILE%\.claude\CLAUDE.md` |
-| Spec Kit | `~/.local/bin/specify` | `%USERPROFILE%\.local\bin\specify` |
+| Claude-Z | `~/.local/bin/claude-z` | `%USERPROFILE%\.local\bin\claude-z.cmd` |
+| Z.AI Config | `~/.config/zai/` | `%USERPROFILE%\.config\zai\` |
 
-## Troubleshooting
+### Troubleshooting
 
-### "specify" command not found
-
+#### "specify" command not found
 **macOS/Linux:** Add to `~/.zshrc` or `~/.bashrc`:
 ```bash
 export PATH="$HOME/.local/bin:$PATH"
 ```
+**Windows:** Restart PowerShell or add `%USERPROFILE%\.local\bin` to PATH.
 
-**Windows:** Restart PowerShell or add to PATH manually.
-
-### SuperClaude commands not showing
+#### SuperClaude commands not showing
 Restart Claude Code completely (quit and reopen).
 
-### Permission denied (macOS/Linux)
-```bash
-chmod +x install.sh
-./install.sh
-```
-
-### Execution Policy Error (Windows)
+#### Execution Policy Error (Windows)
 ```powershell
 Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 ```
+
+---
 
 ## Credits
 
 - [SuperClaude Framework](https://github.com/SuperClaude-Org/SuperClaude_Framework)
 - [GitHub Spec Kit](https://github.com/github/spec-kit)
+- [z.ai](https://z.ai)
 
 ## License
 
