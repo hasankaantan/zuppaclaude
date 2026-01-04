@@ -35,6 +35,7 @@ ZUPPACLAUDE_REPO="https://raw.githubusercontent.com/hasankaantan/zuppaclaude/mai
 # Global flags
 INSTALL_CLAUDE_Z=false
 ZAI_API_KEY=""
+NPM_USE_SUDO=false
 
 #===============================================================================
 # Helper Functions
@@ -79,45 +80,92 @@ log_step() {
     echo -e "${CYAN}══════════════════════════════════════════════════════════════${NC}\n"
 }
 
-# Check and fix npm cache permissions
+# Check home directory write permissions
+check_home_permissions() {
+    if [ ! -w "$HOME" ]; then
+        log_error "Cannot write to home directory: $HOME"
+        echo ""
+        echo -e "${YELLOW}Your home directory is not writable.${NC}"
+        echo -e "${YELLOW}This is required for ZuppaClaude installation.${NC}"
+        echo ""
+        echo -e "Check permissions with: ${CYAN}ls -la $HOME${NC}"
+        echo -e "Fix with: ${CYAN}sudo chown -R \$(id -u):\$(id -g) $HOME${NC}"
+        echo ""
+        return 1
+    fi
+
+    # Check if .claude directory exists and is writable
+    if [ -d "$CLAUDE_DIR" ] && [ ! -w "$CLAUDE_DIR" ]; then
+        log_warning "$CLAUDE_DIR exists but is not writable"
+        echo -n "Fix permissions? [Y/n] "
+        read -n 1 -r REPLY < /dev/tty 2>/dev/null || REPLY="y"
+        echo
+        if [[ ! $REPLY =~ ^[Nn]$ ]]; then
+            if sudo chown -R "$(id -u):$(id -g)" "$CLAUDE_DIR" 2>/dev/null; then
+                log_success "$CLAUDE_DIR permissions fixed"
+            else
+                log_error "Failed to fix permissions. Run manually:"
+                echo -e "  ${CYAN}sudo chown -R \$(id -u):\$(id -g) \"$CLAUDE_DIR\"${NC}"
+                return 1
+            fi
+        fi
+    fi
+    return 0
+}
+
+# Check and fix npm permissions (cache and global prefix)
 check_npm_permissions() {
     if ! command_exists npm; then
         return 0
     fi
 
+    local needs_sudo=false
+
     # Get npm cache directory
     local npm_cache
-    npm_cache=$(npm config get cache 2>/dev/null) || return 0
+    npm_cache=$(npm config get cache 2>/dev/null) || npm_cache=""
 
-    if [ -z "$npm_cache" ] || [ ! -d "$npm_cache" ]; then
-        return 0
+    # Get npm global prefix
+    local npm_prefix
+    npm_prefix=$(npm config get prefix 2>/dev/null) || npm_prefix=""
+
+    # Check cache for root-owned files
+    if [ -n "$npm_cache" ] && [ -d "$npm_cache" ]; then
+        local cache_root_files
+        cache_root_files=$(find "$npm_cache" -user 0 2>/dev/null | head -1) || true
+        if [ -n "$cache_root_files" ]; then
+            log_warning "npm cache contains root-owned files"
+            log_info "Cache: $npm_cache"
+            needs_sudo=true
+        fi
     fi
 
-    # Check if there are root-owned files in cache
-    local root_files
-    root_files=$(find "$npm_cache" -user 0 2>/dev/null | head -1) || true
+    # Check if global prefix requires sudo
+    if [ -n "$npm_prefix" ] && [ -d "$npm_prefix/lib/node_modules" ]; then
+        if [ ! -w "$npm_prefix/lib/node_modules" ]; then
+            log_warning "npm global directory is not writable"
+            log_info "Prefix: $npm_prefix"
+            needs_sudo=true
+        fi
+    fi
 
-    if [ -n "$root_files" ]; then
-        log_warning "npm cache contains root-owned files"
-        log_info "Cache location: $npm_cache"
+    if [ "$needs_sudo" = true ]; then
         echo ""
-        echo -e "${YELLOW}This can cause permission errors during npm install.${NC}"
-        echo -e "${YELLOW}Fix requires sudo access.${NC}"
+        echo -e "${YELLOW}npm requires elevated permissions for global installs.${NC}"
+        echo -e "${YELLOW}Options:${NC}"
         echo ""
-        echo -n "Fix npm cache permissions? [Y/n] "
+        echo -e "  1. Use sudo for npm install (will be prompted)"
+        echo -e "  2. Fix permissions: ${CYAN}sudo chown -R \$(id -u):\$(id -g) \"$npm_prefix\"${NC}"
+        echo -e "  3. Use nvm to manage Node.js (recommended)"
+        echo ""
+        echo -n "Continue with sudo npm install? [Y/n] "
         read -n 1 -r REPLY < /dev/tty 2>/dev/null || REPLY="y"
         echo
         if [[ ! $REPLY =~ ^[Nn]$ ]]; then
-            log_info "Fixing npm cache permissions..."
-            if sudo chown -R "$(id -u):$(id -g)" "$npm_cache" 2>/dev/null; then
-                log_success "npm cache permissions fixed"
-            else
-                log_error "Failed to fix permissions. Run manually:"
-                echo -e "  ${CYAN}sudo chown -R \$(id -u):\$(id -g) \"$npm_cache\"${NC}"
-                return 1
-            fi
+            NPM_USE_SUDO=true
         else
-            log_warning "Skipping npm cache fix - install may fail"
+            log_warning "Skipping - Claude Code install may fail"
+            NPM_USE_SUDO=false
         fi
     fi
     return 0
@@ -133,6 +181,9 @@ command_exists() {
 
 check_dependencies() {
     log_step "Step 1/6: Checking Dependencies"
+
+    # Check home directory permissions first
+    check_home_permissions || exit 1
 
     local missing_deps=()
     local optional_missing=()
@@ -211,7 +262,11 @@ check_dependencies() {
             if [[ $REPLY =~ ^[Yy]$ ]]; then
                 check_npm_permissions
                 log_info "Updating Claude Code..."
-                npm update -g @anthropic-ai/claude-code && log_success "Claude Code updated" || log_warning "Update failed, continuing..."
+                if [ "$NPM_USE_SUDO" = true ]; then
+                    sudo npm update -g @anthropic-ai/claude-code && log_success "Claude Code updated" || log_warning "Update failed, continuing..."
+                else
+                    npm update -g @anthropic-ai/claude-code && log_success "Claude Code updated" || log_warning "Update failed, continuing..."
+                fi
             fi
         fi
     else
@@ -225,7 +280,11 @@ check_dependencies() {
             echo
             if [[ ! $REPLY =~ ^[Nn]$ ]]; then
                 log_info "Installing Claude Code..."
-                if npm install -g @anthropic-ai/claude-code 2>&1; then
+                local npm_cmd="npm"
+                if [ "$NPM_USE_SUDO" = true ]; then
+                    npm_cmd="sudo npm"
+                fi
+                if $npm_cmd install -g @anthropic-ai/claude-code 2>&1; then
                     log_success "Claude Code installed"
                 else
                     log_error "Failed to install Claude Code"
