@@ -695,16 +695,32 @@ verify_installation() {
     fi
 
     # Check Claude Code
+    local claude_found=false
     if command_exists claude; then
         log_success "Claude Code: Ready"
+        claude_found=true
     else
-        log_warning "Claude Code: Not installed"
+        # Check npm global bin directly
+        local npm_bin
+        npm_bin=$(npm config get prefix 2>/dev/null)/bin/claude
+        if [ -x "$npm_bin" ]; then
+            log_success "Claude Code: Installed (add npm bin to PATH)"
+            claude_found=true
+        else
+            log_warning "Claude Code: Not installed"
+        fi
     fi
 
     # Check Claude-Z
+    local claudez_needs_path=false
     if [ "$INSTALL_CLAUDE_Z" = true ]; then
         if [ -f "$HOME/.local/bin/claude-z" ]; then
-            log_success "Claude-Z: Installed"
+            if command_exists claude-z; then
+                log_success "Claude-Z: Ready"
+            else
+                log_success "Claude-Z: Installed (add ~/.local/bin to PATH)"
+                claudez_needs_path=true
+            fi
         else
             log_error "Claude-Z: Not installed"
             all_good=false
@@ -736,6 +752,27 @@ verify_installation() {
         echo "║                                                                   ║"
         echo "╚═══════════════════════════════════════════════════════════════════╝"
         echo -e "${NC}"
+
+        # Show PATH setup instructions if needed
+        if [ "$claudez_needs_path" = true ] || ! command_exists claude; then
+            echo -e "${YELLOW}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+            echo -e "${YELLOW}  PATH Setup Required${NC}"
+            echo -e "${YELLOW}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+            echo ""
+            echo "  Add this to your ~/.bashrc or ~/.zshrc:"
+            echo ""
+            echo -e "  ${CYAN}export PATH=\"\$HOME/.local/bin:\$PATH\"${NC}"
+            if command_exists npm; then
+                local npm_prefix
+                npm_prefix=$(npm config get prefix 2>/dev/null)
+                if [ -n "$npm_prefix" ] && [ -d "$npm_prefix/bin" ]; then
+                    echo -e "  ${CYAN}export PATH=\"$npm_prefix/bin:\$PATH\"${NC}"
+                fi
+            fi
+            echo ""
+            echo "  Then run: ${CYAN}source ~/.bashrc${NC}"
+            echo ""
+        fi
     else
         echo -e "${YELLOW}"
         echo "╔═══════════════════════════════════════════════════════════════════╗"
