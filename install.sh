@@ -615,16 +615,38 @@ MCPEOF
 #!/bin/bash
 # claude-z - Claude Code with z.ai backend + MCP servers
 
+# Colors
+PURPLE='\033[0;35m'
+CYAN='\033[0;36m'
+YELLOW='\033[1;33m'
+NC='\033[0m'
+
 # Check for API key
 if [ -z "$ZAI_API_KEY" ]; then
   if [ -f ~/.config/zai/api_key ]; then
     export ZAI_API_KEY=$(cat ~/.config/zai/api_key)
   else
-    echo "❌ ZAI_API_KEY not set"
+    echo -e "${PURPLE}❌ ZAI_API_KEY not set${NC}"
     echo "Set: export ZAI_API_KEY='your-api-key'"
     exit 1
   fi
 fi
+
+# Show claude-z banner
+echo -e "${PURPLE}"
+echo "╔═══════════════════════════════════════════════════════════════╗"
+echo "║                                                               ║"
+echo "║   ██████╗██╗      █████╗ ██╗   ██╗██████╗ ███████╗            ║"
+echo "║  ██╔════╝██║     ██╔══██╗██║   ██║██╔══██╗██╔════╝            ║"
+echo "║  ██║     ██║     ███████║██║   ██║██║  ██║█████╗              ║"
+echo "║  ██║     ██║     ██╔══██║██║   ██║██║  ██║██╔══╝              ║"
+echo "║  ╚██████╗███████╗██║  ██║╚██████╔╝██████╔╝███████╗            ║"
+echo "║   ╚═════╝╚══════╝╚═╝  ╚═╝ ╚═════╝ ╚═════╝ ╚══════╝  ${CYAN}Z${PURPLE}        ║"
+echo "║                                                               ║"
+echo -e "║   ${CYAN}z.ai Backend${PURPLE} · ${YELLOW}MCP Servers Enabled${PURPLE}                       ║"
+echo "║                                                               ║"
+echo "╚═══════════════════════════════════════════════════════════════╝"
+echo -e "${NC}"
 
 # Set z.ai environment
 export ANTHROPIC_AUTH_TOKEN="$ZAI_API_KEY"
