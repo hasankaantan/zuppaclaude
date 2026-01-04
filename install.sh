@@ -79,6 +79,50 @@ log_step() {
     echo -e "${CYAN}══════════════════════════════════════════════════════════════${NC}\n"
 }
 
+# Check and fix npm cache permissions
+check_npm_permissions() {
+    if ! command_exists npm; then
+        return 0
+    fi
+
+    # Get npm cache directory
+    local npm_cache
+    npm_cache=$(npm config get cache 2>/dev/null) || return 0
+
+    if [ -z "$npm_cache" ] || [ ! -d "$npm_cache" ]; then
+        return 0
+    fi
+
+    # Check if there are root-owned files in cache
+    local root_files
+    root_files=$(find "$npm_cache" -user 0 2>/dev/null | head -1) || true
+
+    if [ -n "$root_files" ]; then
+        log_warning "npm cache contains root-owned files"
+        log_info "Cache location: $npm_cache"
+        echo ""
+        echo -e "${YELLOW}This can cause permission errors during npm install.${NC}"
+        echo -e "${YELLOW}Fix requires sudo access.${NC}"
+        echo ""
+        echo -n "Fix npm cache permissions? [Y/n] "
+        read -n 1 -r REPLY < /dev/tty 2>/dev/null || REPLY="y"
+        echo
+        if [[ ! $REPLY =~ ^[Nn]$ ]]; then
+            log_info "Fixing npm cache permissions..."
+            if sudo chown -R "$(id -u):$(id -g)" "$npm_cache" 2>/dev/null; then
+                log_success "npm cache permissions fixed"
+            else
+                log_error "Failed to fix permissions. Run manually:"
+                echo -e "  ${CYAN}sudo chown -R \$(id -u):\$(id -g) \"$npm_cache\"${NC}"
+                return 1
+            fi
+        else
+            log_warning "Skipping npm cache fix - install may fail"
+        fi
+    fi
+    return 0
+}
+
 command_exists() {
     command -v "$1" >/dev/null 2>&1
 }
@@ -165,6 +209,7 @@ check_dependencies() {
             read -n 1 -r REPLY < /dev/tty 2>/dev/null || REPLY="n"
             echo
             if [[ $REPLY =~ ^[Yy]$ ]]; then
+                check_npm_permissions
                 log_info "Updating Claude Code..."
                 npm update -g @anthropic-ai/claude-code && log_success "Claude Code updated" || log_warning "Update failed, continuing..."
             fi
@@ -173,12 +218,24 @@ check_dependencies() {
         log_warning "Claude Code not found"
         # Try to install Claude Code
         if command_exists npm; then
+            # Check npm permissions before install
+            check_npm_permissions
             echo -n "Install Claude Code via npm? [Y/n] "
             read -n 1 -r REPLY < /dev/tty 2>/dev/null || REPLY="y"
             echo
             if [[ ! $REPLY =~ ^[Nn]$ ]]; then
                 log_info "Installing Claude Code..."
-                npm install -g @anthropic-ai/claude-code && log_success "Claude Code installed" || log_error "Failed to install Claude Code"
+                if npm install -g @anthropic-ai/claude-code 2>&1; then
+                    log_success "Claude Code installed"
+                else
+                    log_error "Failed to install Claude Code"
+                    echo ""
+                    echo -e "${YELLOW}Troubleshooting tips:${NC}"
+                    echo -e "  1. Check npm cache permissions: ${CYAN}npm cache verify${NC}"
+                    echo -e "  2. Try with sudo: ${CYAN}sudo npm install -g @anthropic-ai/claude-code${NC}"
+                    echo -e "  3. Use npx instead: ${CYAN}npx @anthropic-ai/claude-code${NC}"
+                    echo ""
+                fi
             fi
         else
             log_info "Install manually: https://claude.com/code"
@@ -233,12 +290,25 @@ check_dependencies() {
     if [ ${#optional_missing[@]} -gt 0 ]; then
         log_warning "No Python package manager found. Installing uv..."
         curl -LsSf https://astral.sh/uv/install.sh | sh
+
+        # Source uv environment if available
+        if [ -f "$HOME/.local/bin/env" ]; then
+            # shellcheck source=/dev/null
+            source "$HOME/.local/bin/env"
+        fi
         export PATH="$HOME/.local/bin:$HOME/.cargo/bin:$PATH"
+
         if command_exists uv; then
             log_success "uv installed successfully"
             PACKAGE_MANAGER="uv"
         else
-            log_error "Failed to install uv. Please install manually."
+            log_error "uv installed but not found in PATH"
+            echo ""
+            echo -e "${YELLOW}uv was installed to ~/.local/bin but PATH wasn't updated.${NC}"
+            echo -e "${YELLOW}Run the following and try again:${NC}"
+            echo ""
+            echo -e "  ${CYAN}source ~/.local/bin/env${NC}"
+            echo ""
             exit 1
         fi
     fi
