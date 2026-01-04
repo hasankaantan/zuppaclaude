@@ -1,123 +1,89 @@
-# Claude Code - Enhanced System Instructions
+# CLAUDE.md
 
-## General Behavior
-- Be proactive: After analysis ask "Should I implement?" or "Let's start?"
-- Provide summary report when done (commit hash, changes, line count)
-- Don't ask open-ended questions, suggest the best option
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-## SuperClaude Framework (Active)
-SuperClaude slash commands are loaded. Use them proactively:
+## Project Overview
 
-### Planning & Design
-- `/sc:brainstorm` - Idea development and brainstorming
-- `/sc:design` - Architectural design
-- `/sc:estimate` - Time/resource estimation
-- `/sc:spec-panel` - Specification panel
+ZuppaClaude is a single-command installer that deploys Claude Code enhancement tools:
+- **SuperClaude**: 30+ slash commands framework
+- **Spec Kit**: spec-driven development CLI (`specify`)
+- **Claude-Z**: z.ai backend integration (optional)
+- **CLAUDE.md**: System instructions
 
-### Development
-- `/sc:implement` - Code implementation
-- `/sc:build` - Build and compile
-- `/sc:improve` - Code improvement
-- `/sc:explain` - Code explanation
+This is an **installer package**, not a code library. It consists of bash/PowerShell scripts.
 
-### Testing & Quality
-- `/sc:test` - Test creation
-- `/sc:analyze` - Code analysis
-- `/sc:troubleshoot` - Debugging
-- `/sc:reflect` - Retrospective
+## Development Commands
 
-### Documentation & Help
-- `/sc:document` - Documentation creation
-- `/sc:help` - Command help
-
-### Research
-- `/sc:research` - Deep web research
-- `/sc:business-panel` - Business analysis
-
-### Project Management
-- `/sc:task` - Task management
-- `/sc:workflow` - Workflow management
-- `/sc:pm` - Project management
-
-### Other
-- `/sc:agent` - Agent management
-- `/sc:spawn` - Sub-agent creation
-- `/sc:index-repo` - Repository indexing
-- `/sc:git` - Git operations
-
-## Spec Kit (Active)
-Spec-driven development with `specify` CLI:
-
+**Testing installation locally:**
 ```bash
-specify init         # Initialize project
-specify constitution # Project rules
-specify spec         # Functional requirements
-specify plan         # Technical implementation plan
-specify tasks        # Task breakdown
+# macOS/Linux
+bash install.sh
+
+# Windows (PowerShell)
+.\install.ps1
 ```
 
-For large features, recommend this workflow:
-1. `specify constitution` - Base rules
-2. `specify spec` - What to do
-3. `specify plan` - How to do it
-4. `specify tasks` - Step-by-step tasks
-5. Implementation
+**Testing uninstallation:**
+```bash
+# macOS/Linux
+bash uninstall.sh
 
-## Task Completion (Critical)
-- ALWAYS provide summary report when done
-- Don't finish with just "Tasks: 6/6" - that's NOT a summary
-- Show commit hash, change list, line count
+# Windows (PowerShell)
+.\uninstall.ps1
+```
 
-## Response Format
-- Short and concise answers
-- Use Markdown formatting
-- Specify language for code blocks
-- Status: OK = success, ERR = error, WARN = warning
+**No build/lint/test commands** - this is a script-based project.
 
-## Git Commit Message Guidelines
+## Architecture
 
-Follow Conventional Commits specification.
+### Install Flow (6 steps)
+1. Dependency check (OS, Python 3.8+, git, Claude Code CLI)
+2. SuperClaude installation (git clone from GitHub)
+3. Spec Kit installation (pip3/pipx/uv)
+4. CLAUDE.md configuration download
+5. Claude-Z setup (optional, requires z.ai API key)
+6. Verification of all components
 
-### Format
+### Key Files
+| File | Purpose |
+|------|---------|
+| `install.sh` | Main installer (bash, 671 lines) |
+| `install.ps1` | Windows installer (PowerShell, 651 lines) |
+| `uninstall.sh` | Removal script (bash) |
+| `uninstall.ps1` | Windows removal (PowerShell) |
+
+### Installation Targets
+- **macOS/Linux**: `~/.claude/` (config), `~/.local/bin/` (executables)
+- **Windows**: `%USERPROFILE%\.claude\`, `%USERPROFILE%\.local\bin\`
+
+### Design Patterns
+- **Graceful fallbacks**: Multiple installation methods (pip3 → pipx → uv)
+- **Platform detection**: OS-specific logic for macOS/Linux/Windows
+- **Interactive/non-interactive**: Supports piped `curl | bash` with defaults
+- **Backup strategy**: Preserves existing configs before overwriting
+
+## Git Commit Guidelines
+
+Follow Conventional Commits with present tense:
+
 ```
 <type>: <description>
 
-[optional body]
-
-[optional footer]
+[optional body with bullet points]
 ```
 
-### Types
-- **feat**: A new feature
-- **fix**: A bug fix
-- **docs**: Documentation only changes
-- **style**: Changes that do not affect the meaning of the code
-- **refactor**: A code change that neither fixes a bug nor adds a feature
-- **perf**: A code change that improves performance
-- **test**: Adding missing tests or correcting existing tests
-- **chore**: Changes to the build process or auxiliary tools
+**Types**: feat, fix, docs, style, refactor, perf, test, chore
 
-### Rules
-1. Use simple present tense: "adds" not "add" or "added"
-2. Use lowercase: "feat: adds feature" not "Feat: Adds Feature"
-3. Limit first line to 72 characters or less
-4. Use bullet points in body with hyphens (-)
-5. Be specific and descriptive
+**Rules**:
+- Lowercase: `feat: adds feature` not `Feat: Adds Feature`
+- Present tense: "adds" not "add" or "added"
+- Max 72 chars first line
+- Use hyphens (-) for bullet points
 
-### Examples
-
-#### Good
+**Example**:
 ```
 feat: adds user authentication system
 
 - adds login and registration endpoints
 - adds JWT token generation
-- adds password hashing with bcrypt
-```
-
-```
-fix: resolves login validation issue
-
-- fixes email format validation
-- adds proper error messages
 ```
