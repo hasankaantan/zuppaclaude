@@ -233,7 +233,7 @@ check_dependencies() {
     if [ ${#optional_missing[@]} -gt 0 ]; then
         log_warning "No Python package manager found. Installing uv..."
         curl -LsSf https://astral.sh/uv/install.sh | sh
-        export PATH="$HOME/.cargo/bin:$PATH"
+        export PATH="$HOME/.local/bin:$HOME/.cargo/bin:$PATH"
         if command_exists uv; then
             log_success "uv installed successfully"
             PACKAGE_MANAGER="uv"
