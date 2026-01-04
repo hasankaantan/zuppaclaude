@@ -651,6 +651,18 @@ CLAUDEZEOF
 verify_installation() {
     log_step "Step 6/6: Verifying Installation"
 
+    # Refresh PATH to find newly installed commands
+    export PATH="$HOME/.local/bin:$HOME/.cargo/bin:$PATH"
+
+    # Also check common npm global locations
+    if command_exists npm; then
+        local npm_bin
+        npm_bin=$(npm config get prefix 2>/dev/null)/bin
+        if [ -d "$npm_bin" ]; then
+            export PATH="$npm_bin:$PATH"
+        fi
+    fi
+
     local all_good=true
 
     # Check SuperClaude
