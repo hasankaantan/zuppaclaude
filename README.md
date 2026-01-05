@@ -25,6 +25,19 @@ ZuppaClaude, Claude Code deneyiminizi güçlendiren araçları tek komutla kurar
 
 ### 🚀 Hızlı Kurulum
 
+#### 📦 NPM ile (Önerilen)
+```bash
+npx zuppaclaude
+```
+
+Veya global kurulum:
+```bash
+npm install -g zuppaclaude
+zuppaclaude
+```
+
+#### 🐚 Shell ile
+
 **🍎 macOS / 🐧 Linux:**
 ```bash
 curl -fsSL https://raw.githubusercontent.com/hasankaantan/zuppaclaude/main/install.sh | bash
@@ -156,6 +169,15 @@ Ardından Claude Code içinde:
 
 ZuppaClaude seçimlerinizi kaydeder ve tekrar kurulumda otomatik kullanır.
 
+**📦 NPM ile:**
+```bash
+npx zuppaclaude settings show              # 👁️ Ayarları görüntüle
+npx zuppaclaude settings export ~/backup.json  # 💾 Dışa aktar
+npx zuppaclaude settings import ~/backup.json  # 📥 İçe aktar
+npx zuppaclaude settings reset             # 🔄 Fabrika ayarları
+```
+
+**🐚 Shell ile:**
 ```bash
 ./zc-settings.sh show              # 👁️ Ayarları görüntüle
 ./zc-settings.sh export ~/backup.json  # 💾 Dışa aktar
@@ -172,6 +194,13 @@ ZuppaClaude seçimlerinizi kaydeder ve tekrar kurulumda otomatik kullanır.
 | 🛡️ Uninstall koruması | Kaldırırken ayarları koruma opsiyonu |
 
 ### 🗑️ Kaldırma
+
+**📦 NPM ile:**
+```bash
+npx zuppaclaude uninstall
+```
+
+**🐚 Shell ile:**
 
 **🍎 macOS / 🐧 Linux:**
 ```bash
@@ -211,6 +240,19 @@ ZuppaClaude installs tools to supercharge your Claude Code experience with a sin
 | 📝 **CLAUDE.md** | Optimized system instructions |
 
 ### 🚀 Quick Install
+
+#### 📦 Via NPM (Recommended)
+```bash
+npx zuppaclaude
+```
+
+Or install globally:
+```bash
+npm install -g zuppaclaude
+zuppaclaude
+```
+
+#### 🐚 Via Shell
 
 **🍎 macOS / 🐧 Linux:**
 ```bash
@@ -343,6 +385,16 @@ Then inside Claude Code:
 
 ZuppaClaude saves your choices and automatically uses them on reinstall.
 
+**📦 Via NPM:**
+```bash
+npx zuppaclaude settings show              # 👁️ View settings
+npx zuppaclaude settings export ~/backup.json  # 💾 Export
+npx zuppaclaude settings import ~/backup.json  # 📥 Import
+npx zuppaclaude settings reset             # 🔄 Reset to defaults
+```
+
+**🐚 Via Shell:**
+
 **🍎🐧 macOS/Linux:**
 ```bash
 ./zc-settings.sh show              # 👁️ View settings
@@ -368,6 +420,13 @@ ZuppaClaude saves your choices and automatically uses them on reinstall.
 | 🛡️ Uninstall protection | Option to preserve settings when uninstalling |
 
 ### 🗑️ Uninstall
+
+**📦 Via NPM:**
+```bash
+npx zuppaclaude uninstall
+```
+
+**🐚 Via Shell:**
 
 **🍎 macOS / 🐧 Linux:**
 ```bash

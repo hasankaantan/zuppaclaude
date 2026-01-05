@@ -1,0 +1,43 @@
+{
+  "name": "zuppaclaude",
+  "version": "1.0.0",
+  "description": "Claude Code power-up installer - SuperClaude + Spec Kit + Claude-Z + Claude HUD",
+  "main": "lib/index.js",
+  "bin": {
+    "zuppaclaude": "./bin/zuppaclaude.js"
+  },
+  "scripts": {
+    "start": "node bin/zuppaclaude.js",
+    "test": "node bin/zuppaclaude.js --help"
+  },
+  "keywords": [
+    "claude",
+    "claude-code",
+    "anthropic",
+    "ai",
+    "cli",
+    "superclaude",
+    "spec-kit",
+    "claude-z",
+    "mcp"
+  ],
+  "author": "Hasan Kaan Tan",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hasankaantan/zuppaclaude.git"
+  },
+  "bugs": {
+    "url": "https://github.com/hasankaantan/zuppaclaude/issues"
+  },
+  "homepage": "https://github.com/hasankaantan/zuppaclaude#readme",
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "files": [
+    "bin",
+    "lib",
+    "assets"
+  ],
+  "dependencies": {}
+}
