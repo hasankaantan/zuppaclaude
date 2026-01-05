@@ -8,6 +8,7 @@ ZuppaClaude is a single-command installer that deploys Claude Code enhancement t
 - **SuperClaude**: 30+ slash commands framework
 - **Spec Kit**: spec-driven development CLI (`specify`)
 - **Claude-Z**: z.ai backend integration (optional)
+- **Claude HUD**: real-time status display plugin (optional)
 - **CLAUDE.md**: System instructions
 
 This is an **installer package**, not a code library. It consists of bash/PowerShell scripts.
@@ -32,6 +33,21 @@ bash uninstall.sh
 .\uninstall.ps1
 ```
 
+**Settings management:**
+```bash
+# macOS/Linux
+./zc-settings.sh show      # Display current settings
+./zc-settings.sh export ~/backup.json
+./zc-settings.sh import ~/backup.json
+./zc-settings.sh reset
+
+# Windows (PowerShell)
+.\zc-settings.ps1 show
+.\zc-settings.ps1 export ~\backup.json
+.\zc-settings.ps1 import ~\backup.json
+.\zc-settings.ps1 reset
+```
+
 **No build/lint/test commands** - this is a script-based project.
 
 ## Architecture
@@ -48,10 +64,19 @@ bash uninstall.sh
 ### Key Files
 | File | Purpose |
 |------|---------|
-| `install.sh` | Main installer (bash, 671 lines) |
-| `install.ps1` | Windows installer (PowerShell, 651 lines) |
+| `install.sh` | Main installer (bash) |
+| `install.ps1` | Windows installer (PowerShell) |
 | `uninstall.sh` | Removal script (bash) |
 | `uninstall.ps1` | Windows removal (PowerShell) |
+| `zc-settings.sh` | Settings manager (bash) |
+| `zc-settings.ps1` | Settings manager (PowerShell) |
+
+### Settings Persistence
+User settings are saved to `~/.config/zuppaclaude/zc-settings.json`:
+- Saves component selections (Claude-Z, Claude HUD)
+- Stores API keys (base64 encoded)
+- Enables quick reinstall with previous choices
+- Preserved during uninstall (optional)
 
 ### Installation Targets
 - **macOS/Linux**: `~/.claude/` (config), `~/.local/bin/` (executables)
