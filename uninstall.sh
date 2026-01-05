@@ -13,7 +13,10 @@ YELLOW='\033[1;33m'
 CYAN='\033[0;36m'
 NC='\033[0m'
 
+# Config
 CLAUDE_DIR="$HOME/.claude"
+ZUPPACLAUDE_CONFIG_DIR="$HOME/.config/zuppaclaude"
+SETTINGS_FILE="$ZUPPACLAUDE_CONFIG_DIR/zc-settings.json"
 
 echo -e "${CYAN}"
 echo "╔═══════════════════════════════════════════════════════════════════╗"
@@ -26,6 +29,7 @@ echo "  • SuperClaude commands (~/.claude/commands/sc/)"
 echo "  • CLAUDE.md configuration (~/.claude/CLAUDE.md)"
 echo "  • Spec Kit CLI (specify-cli)"
 echo "  • Claude-Z script (~/.local/bin/claude-z)"
+echo "  • Claude HUD setup script (~/.local/bin/setup-claude-hud)"
 echo "  • Z.AI configuration (~/.config/zai/)"
 echo ""
 
@@ -38,6 +42,28 @@ if [[ ! $REPLY =~ ^[Yy]$ ]]; then
 fi
 
 echo ""
+
+# Ask about preserving settings
+KEEP_SETTINGS=false
+if [ -f "$SETTINGS_FILE" ]; then
+    echo -e "${CYAN}═══════════════════════════════════════════════════════════════${NC}"
+    echo -e "${CYAN}  Settings Preservation${NC}"
+    echo -e "${CYAN}═══════════════════════════════════════════════════════════════${NC}"
+    echo ""
+    echo "Found saved settings at: $SETTINGS_FILE"
+    echo "Keeping settings allows quick reinstall with your previous choices."
+    echo ""
+    echo -n "Keep settings for future reinstall? [Y/n] "
+    read -n 1 -r REPLY < /dev/tty 2>/dev/null || REPLY="y"
+    echo
+    if [[ ! $REPLY =~ ^[Nn]$ ]]; then
+        KEEP_SETTINGS=true
+        echo -e "${GREEN}[✓]${NC} Settings will be preserved"
+    else
+        echo -e "${YELLOW}[!]${NC} Settings will be removed"
+    fi
+    echo ""
+fi
 
 # Remove SuperClaude
 if [ -d "$CLAUDE_DIR/commands/sc" ]; then
@@ -75,6 +101,14 @@ else
     echo -e "${YELLOW}[!]${NC} Claude-Z script not found"
 fi
 
+# Remove Claude HUD setup script
+if [ -f "$HOME/.local/bin/setup-claude-hud" ]; then
+    rm -f "$HOME/.local/bin/setup-claude-hud"
+    echo -e "${GREEN}[✓]${NC} Claude HUD setup script removed"
+else
+    echo -e "${YELLOW}[!]${NC} Claude HUD setup script not found"
+fi
+
 # Remove Z.AI configuration
 if [ -d "$HOME/.config/zai" ]; then
     rm -rf "$HOME/.config/zai"
@@ -83,10 +117,24 @@ else
     echo -e "${YELLOW}[!]${NC} Z.AI configuration not found"
 fi
 
+# Handle settings
+if [ "$KEEP_SETTINGS" = true ]; then
+    echo -e "${GREEN}[✓]${NC} Settings preserved at: $SETTINGS_FILE"
+else
+    if [ -d "$ZUPPACLAUDE_CONFIG_DIR" ]; then
+        rm -rf "$ZUPPACLAUDE_CONFIG_DIR"
+        echo -e "${GREEN}[✓]${NC} ZuppaClaude settings removed"
+    fi
+fi
+
 echo ""
 echo -e "${GREEN}"
 echo "╔═══════════════════════════════════════════════════════════════════╗"
 echo "║   Uninstall complete!                                             ║"
 echo "║   Restart Claude Code to apply changes.                           ║"
+if [ "$KEEP_SETTINGS" = true ]; then
+echo "║                                                                   ║"
+echo "║   Settings preserved - reinstall will use your saved config.      ║"
+fi
 echo "╚═══════════════════════════════════════════════════════════════════╝"
 echo -e "${NC}"
