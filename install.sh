@@ -1160,6 +1160,9 @@ main() {
     install_claude_z
     install_claude_hud
     verify_installation
+
+    # Save settings for future reinstalls
+    save_settings
 }
 
 # Run
