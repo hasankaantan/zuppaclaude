@@ -197,26 +197,48 @@ npx zuppaclaude settings reset             # 🔄 Fabrika ayarları
 | 🔐 API key koruması | Base64 encoded saklama |
 | 🛡️ Uninstall koruması | Kaldırırken ayarları koruma opsiyonu |
 
-### 💾 Session Yedekleme
+### 💾 Yedekleme & Geri Yükleme
 
-Claude Code session'larınızı yedekleyin ve geri yükleyin. Context kaybı, format veya compacting durumlarında kullanışlı.
+Claude Code session'larınızı ve ayarlarınızı yedekleyin. Context kaybı, format veya compacting durumlarında kullanışlı.
 
+**🔄 Tam Yedekleme (Sessions + Ayarlar):**
 ```bash
-npx zuppaclaude session list        # 📋 Tüm session'ları listele
-npx zuppaclaude session backup      # 💾 Tüm session'ları yedekle
-npx zuppaclaude session backups     # 📦 Mevcut yedekleri listele
-npx zuppaclaude session restore <id> # ♻️ Yedekten geri yükle
-npx zuppaclaude session export <id>  # 📤 Belirli session'ı export et
+npx zuppaclaude backup              # 💾 Lokal tam yedek
+npx zuppaclaude backup --cloud gdrive  # ☁️ Google Drive'a yedekle
+npx zuppaclaude restore <id>        # ♻️ Yedekten geri yükle
+npx zuppaclaude restore <id> --cloud gdrive  # ☁️ Cloud'dan geri yükle
 ```
 
-**📁 Yedek konumu:** `~/.config/zuppaclaude/backups/`
+**📋 Sadece Session İşlemleri:**
+```bash
+npx zuppaclaude session list        # 📋 Tüm session'ları listele
+npx zuppaclaude session backup      # 💾 Sadece session'ları yedekle
+npx zuppaclaude session backups     # 📦 Mevcut yedekleri listele
+```
+
+### ☁️ Cloud Yedekleme (rclone)
+
+Google Drive, Dropbox, OneDrive, S3, SFTP ve 40+ cloud servise yedekleme.
+
+```bash
+# Kurulum
+brew install rclone      # macOS
+rclone config            # Remote ayarla (gdrive, dropbox vs.)
+
+# Kullanım
+npx zuppaclaude cloud setup         # 📖 Kurulum talimatları
+npx zuppaclaude cloud remotes       # 📋 Mevcut remote'ları listele
+npx zuppaclaude backup --cloud gdrive  # ☁️ Yedekle ve upload et
+npx zuppaclaude cloud backups gdrive   # 📦 Cloud'daki yedekleri listele
+```
 
 **✨ Özellikler:**
 | Özellik | Açıklama |
 |---------|----------|
 | 🔒 Güvenli restore | Mevcut session'lar üzerine yazılmaz |
-| 📜 History desteği | Command history de yedeklenir |
-| 📋 Manifest | Her yedekte metadata saklanır |
+| 📜 Tam yedek | Sessions + Settings + History |
+| ☁️ 40+ cloud | rclone ile Google Drive, Dropbox, S3, SFTP... |
+| 🔐 Encryption | rclone encryption desteği |
 
 ### 🗑️ Kaldırma
 
@@ -444,26 +466,48 @@ npx zuppaclaude settings reset             # 🔄 Reset to defaults
 | 🔐 API key protection | Base64 encoded storage |
 | 🛡️ Uninstall protection | Option to preserve settings when uninstalling |
 
-### 💾 Session Backup
+### 💾 Backup & Restore
 
-Backup and restore your Claude Code sessions. Useful for context loss, formatting, or conversation compacting.
+Backup your Claude Code sessions and settings. Useful for context loss, formatting, or conversation compacting.
 
+**🔄 Full Backup (Sessions + Settings):**
 ```bash
-npx zuppaclaude session list        # 📋 List all sessions
-npx zuppaclaude session backup      # 💾 Backup all sessions
-npx zuppaclaude session backups     # 📦 List available backups
-npx zuppaclaude session restore <id> # ♻️ Restore from backup
-npx zuppaclaude session export <id>  # 📤 Export specific session
+npx zuppaclaude backup              # 💾 Local full backup
+npx zuppaclaude backup --cloud gdrive  # ☁️ Backup to Google Drive
+npx zuppaclaude restore <id>        # ♻️ Restore from backup
+npx zuppaclaude restore <id> --cloud gdrive  # ☁️ Restore from cloud
 ```
 
-**📁 Backup location:** `~/.config/zuppaclaude/backups/`
+**📋 Session-only Operations:**
+```bash
+npx zuppaclaude session list        # 📋 List all sessions
+npx zuppaclaude session backup      # 💾 Backup sessions only
+npx zuppaclaude session backups     # 📦 List available backups
+```
+
+### ☁️ Cloud Backup (rclone)
+
+Backup to Google Drive, Dropbox, OneDrive, S3, SFTP, and 40+ cloud services.
+
+```bash
+# Setup
+brew install rclone      # macOS
+rclone config            # Configure remote (gdrive, dropbox, etc.)
+
+# Usage
+npx zuppaclaude cloud setup         # 📖 Setup instructions
+npx zuppaclaude cloud remotes       # 📋 List configured remotes
+npx zuppaclaude backup --cloud gdrive  # ☁️ Backup and upload
+npx zuppaclaude cloud backups gdrive   # 📦 List cloud backups
+```
 
 **✨ Features:**
 | Feature | Description |
 |---------|-------------|
 | 🔒 Safe restore | Existing sessions are not overwritten |
-| 📜 History support | Command history is also backed up |
-| 📋 Manifest | Metadata saved with each backup |
+| 📜 Full backup | Sessions + Settings + History |
+| ☁️ 40+ clouds | Google Drive, Dropbox, S3, SFTP via rclone |
+| 🔐 Encryption | rclone encryption support |
 
 ### 🗑️ Uninstall
 
