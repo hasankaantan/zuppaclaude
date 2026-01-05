@@ -46,6 +46,12 @@ Display ZuppaClaude commands and documentation.
 | `/zc:settings import` | Import settings |
 | `/zc:settings reset` | Reset to defaults |
 
+### Claude HUD
+
+| Command | Description |
+|---------|-------------|
+| `/zc:hud` | Claude HUD setup instructions |
+
 ## Quick Start
 
 ```
