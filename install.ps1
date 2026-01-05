@@ -18,6 +18,9 @@ $ErrorActionPreference = "Stop"
 $CLAUDE_DIR = "$env:USERPROFILE\.claude"
 $COMMANDS_DIR = "$CLAUDE_DIR\commands"
 $ZAI_CONFIG_DIR = "$env:USERPROFILE\.config\zai"
+$ZUPPACLAUDE_CONFIG_DIR = "$env:USERPROFILE\.config\zuppaclaude"
+$SETTINGS_FILE = "$ZUPPACLAUDE_CONFIG_DIR\zc-settings.json"
+$SETTINGS_VERSION = "1.0"
 $SUPERCLAUDE_REPO = "https://github.com/SuperClaude-Org/SuperClaude_Framework/archive/refs/heads/master.zip"
 $ZUPPACLAUDE_REPO = "https://raw.githubusercontent.com/hasankaantan/zuppaclaude/main"
 
@@ -25,6 +28,136 @@ $ZUPPACLAUDE_REPO = "https://raw.githubusercontent.com/hasankaantan/zuppaclaude/
 $script:INSTALL_CLAUDE_Z = $false
 $script:INSTALL_CLAUDE_HUD = $false
 $script:ZAI_API_KEY = ""
+$script:HAS_EXISTING_SETTINGS = $false
+
+#===============================================================================
+# Settings Management
+#===============================================================================
+
+function Test-ExistingSettings {
+    return (Test-Path $SETTINGS_FILE)
+}
+
+function Get-Settings {
+    if (-not (Test-ExistingSettings)) {
+        return $null
+    }
+
+    try {
+        $settings = Get-Content $SETTINGS_FILE -Raw | ConvertFrom-Json
+        return $settings
+    } catch {
+        Write-Warning "Could not parse settings file: $_"
+        return $null
+    }
+}
+
+function Import-Settings {
+    $settings = Get-Settings
+    if ($null -eq $settings) {
+        return $false
+    }
+
+    Write-Info "Found existing settings: $SETTINGS_FILE"
+
+    $components = $settings.components
+
+    # Load Claude-Z settings
+    if ($components.claude_z.installed) {
+        $script:INSTALL_CLAUDE_Z = $true
+        if ($components.claude_z.api_key_encoded) {
+            try {
+                $script:ZAI_API_KEY = [System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String($components.claude_z.api_key_encoded))
+            } catch {
+                Write-Warning "Could not decode API key"
+            }
+        }
+    }
+
+    # Load Claude HUD settings
+    if ($components.claude_hud.installed) {
+        $script:INSTALL_CLAUDE_HUD = $true
+    }
+
+    $script:HAS_EXISTING_SETTINGS = $true
+    return $true
+}
+
+function Save-Settings {
+    if (-not (Test-Path $ZUPPACLAUDE_CONFIG_DIR)) {
+        New-Item -ItemType Directory -Path $ZUPPACLAUDE_CONFIG_DIR -Force | Out-Null
+    }
+
+    $timestamp = (Get-Date).ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ssZ")
+
+    # Get existing created timestamp
+    $createdAt = $timestamp
+    if (Test-Path $SETTINGS_FILE) {
+        try {
+            $existing = Get-Content $SETTINGS_FILE -Raw | ConvertFrom-Json
+            $createdAt = $existing.created
+        } catch {}
+    }
+
+    # Encode API key
+    $apiKeyEncoded = ""
+    if ($script:ZAI_API_KEY) {
+        $apiKeyEncoded = [System.Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes($script:ZAI_API_KEY))
+    }
+
+    $settings = @{
+        version = $SETTINGS_VERSION
+        created = $createdAt
+        updated = $timestamp
+        components = @{
+            superclaude = @{
+                installed = $true
+                path = "$COMMANDS_DIR\sc"
+            }
+            speckit = @{
+                installed = $true
+            }
+            claude_z = @{
+                installed = $script:INSTALL_CLAUDE_Z
+                api_key_encoded = $apiKeyEncoded
+                config_dir = $ZAI_CONFIG_DIR
+            }
+            claude_hud = @{
+                installed = $script:INSTALL_CLAUDE_HUD
+            }
+        }
+        preferences = @{
+            auto_update_check = $true
+            backup_configs = $true
+        }
+    }
+
+    $settings | ConvertTo-Json -Depth 10 | Out-File -FilePath $SETTINGS_FILE -Encoding UTF8
+    Write-Success "Settings saved to $SETTINGS_FILE"
+}
+
+function Show-Settings {
+    $settings = Get-Settings
+    if ($null -eq $settings) {
+        Write-Info "No existing settings found"
+        return
+    }
+
+    Write-Host ""
+    Write-Host "══════════════════════════════════════════════════════════════" -ForegroundColor Cyan
+    Write-Host "  Existing ZuppaClaude Settings" -ForegroundColor Cyan
+    Write-Host "══════════════════════════════════════════════════════════════" -ForegroundColor Cyan
+    Write-Host ""
+    Write-Host "  Version: $($settings.version)"
+    Write-Host "  Last updated: $($settings.updated)"
+    Write-Host ""
+    Write-Host "  Components:"
+    Write-Host "    - SuperClaude: $(if ($settings.components.superclaude.installed) { 'Yes' } else { 'No' })"
+    Write-Host "    - Spec Kit: $(if ($settings.components.speckit.installed) { 'Yes' } else { 'No' })"
+    Write-Host "    - Claude-Z: $(if ($settings.components.claude_z.installed) { 'Yes' } else { 'No' })"
+    Write-Host "    - Claude HUD: $(if ($settings.components.claude_hud.installed) { 'Yes' } else { 'No' })"
+    Write-Host ""
+}
 
 #===============================================================================
 # Helper Functions
@@ -705,61 +838,78 @@ function Main {
     Write-Host "  - Claude HUD (optional - status display plugin)"
     Write-Host ""
 
+    # Check for existing settings
+    $useExistingSettings = $false
+    if (Test-ExistingSettings) {
+        Show-Settings
+        $response = Read-Host "Use these saved settings? [Y/n]"
+        if ($response -ne 'n' -and $response -ne 'N') {
+            Import-Settings
+            $useExistingSettings = $true
+            Write-Success "Using saved settings"
+        } else {
+            Write-Info "Starting fresh configuration"
+        }
+    }
+
     $response = Read-Host "Continue with installation? [Y/n]"
     if ($response -eq 'n' -or $response -eq 'N') {
         Write-Info "Installation cancelled."
         exit 0
     }
 
-    # Ask about Claude-Z / z.ai
-    Write-Host ""
-    Write-Host "══════════════════════════════════════════════════════════════" -ForegroundColor Cyan
-    Write-Host "  Claude-Z Setup (Optional)" -ForegroundColor Cyan
-    Write-Host "══════════════════════════════════════════════════════════════" -ForegroundColor Cyan
-    Write-Host ""
-    Write-Host "Claude-Z allows you to use Claude Code with z.ai backend."
-    Write-Host "This provides additional MCP servers and features."
-    Write-Host ""
-
-    $response = Read-Host "Do you want to install Claude-Z? [y/N]"
-    if ($response -eq 'y' -or $response -eq 'Y') {
+    # Skip questions if using existing settings
+    if (-not $useExistingSettings) {
+        # Ask about Claude-Z / z.ai
         Write-Host ""
-        Write-Host "Enter your Z.AI API key (get it from https://z.ai):" -ForegroundColor Cyan
-        $script:ZAI_API_KEY = Read-Host "API Key"
+        Write-Host "══════════════════════════════════════════════════════════════" -ForegroundColor Cyan
+        Write-Host "  Claude-Z Setup (Optional)" -ForegroundColor Cyan
+        Write-Host "══════════════════════════════════════════════════════════════" -ForegroundColor Cyan
+        Write-Host ""
+        Write-Host "Claude-Z allows you to use Claude Code with z.ai backend."
+        Write-Host "This provides additional MCP servers and features."
+        Write-Host ""
 
-        if ($script:ZAI_API_KEY -and $script:ZAI_API_KEY.Trim() -ne "") {
-            $script:INSTALL_CLAUDE_Z = $true
-            Write-Success "Z.AI API key received"
+        $response = Read-Host "Do you want to install Claude-Z? [y/N]"
+        if ($response -eq 'y' -or $response -eq 'Y') {
+            Write-Host ""
+            Write-Host "Enter your Z.AI API key (get it from https://z.ai):" -ForegroundColor Cyan
+            $script:ZAI_API_KEY = Read-Host "API Key"
+
+            if ($script:ZAI_API_KEY -and $script:ZAI_API_KEY.Trim() -ne "") {
+                $script:INSTALL_CLAUDE_Z = $true
+                Write-Success "Z.AI API key received"
+            } else {
+                Write-Warning "No API key provided, skipping Claude-Z"
+                $script:INSTALL_CLAUDE_Z = $false
+            }
         } else {
-            Write-Warning "No API key provided, skipping Claude-Z"
-            $script:INSTALL_CLAUDE_Z = $false
+            Write-Info "Skipping Claude-Z installation"
         }
-    } else {
-        Write-Info "Skipping Claude-Z installation"
-    }
 
-    # Ask about Claude HUD
-    Write-Host ""
-    Write-Host "══════════════════════════════════════════════════════════════" -ForegroundColor Cyan
-    Write-Host "  Claude HUD Setup (Optional)" -ForegroundColor Cyan
-    Write-Host "══════════════════════════════════════════════════════════════" -ForegroundColor Cyan
-    Write-Host ""
-    Write-Host "Claude HUD adds a real-time status display to Claude Code showing:"
-    Write-Host "  - Context window usage meter"
-    Write-Host "  - Active tools and file operations"
-    Write-Host "  - Running agents and their duration"
-    Write-Host "  - Todo/task progress"
-    Write-Host ""
-    Write-Host "Requires: Claude Code v1.0.80+, Node.js 18+"
-    Write-Host "Source: https://github.com/jarrodwatts/claude-hud"
-    Write-Host ""
+        # Ask about Claude HUD
+        Write-Host ""
+        Write-Host "══════════════════════════════════════════════════════════════" -ForegroundColor Cyan
+        Write-Host "  Claude HUD Setup (Optional)" -ForegroundColor Cyan
+        Write-Host "══════════════════════════════════════════════════════════════" -ForegroundColor Cyan
+        Write-Host ""
+        Write-Host "Claude HUD adds a real-time status display to Claude Code showing:"
+        Write-Host "  - Context window usage meter"
+        Write-Host "  - Active tools and file operations"
+        Write-Host "  - Running agents and their duration"
+        Write-Host "  - Todo/task progress"
+        Write-Host ""
+        Write-Host "Requires: Claude Code v1.0.80+, Node.js 18+"
+        Write-Host "Source: https://github.com/jarrodwatts/claude-hud"
+        Write-Host ""
 
-    $response = Read-Host "Do you want to install Claude HUD? [y/N]"
-    if ($response -eq 'y' -or $response -eq 'Y') {
-        $script:INSTALL_CLAUDE_HUD = $true
-        Write-Success "Claude HUD will be installed"
-    } else {
-        Write-Info "Skipping Claude HUD installation"
+        $response = Read-Host "Do you want to install Claude HUD? [y/N]"
+        if ($response -eq 'y' -or $response -eq 'Y') {
+            $script:INSTALL_CLAUDE_HUD = $true
+            Write-Success "Claude HUD will be installed"
+        } else {
+            Write-Info "Skipping Claude HUD installation"
+        }
     }
 
     Test-Dependencies
@@ -769,6 +919,9 @@ function Main {
     Install-ClaudeZ
     Install-ClaudeHUD
     Test-Installation
+
+    # Save settings for future reinstalls
+    Save-Settings
 }
 
 # Run
