@@ -71,6 +71,49 @@ async function main() {
         }
         break;
 
+      case 'session':
+      case 'sessions':
+        const { SessionManager } = require('../lib/components/session');
+        const sessionManager = new SessionManager();
+        const sessionCmd = args[1] || 'list';
+        const sessionArg = args[2];
+
+        switch (sessionCmd) {
+          case 'list':
+          case 'ls':
+            sessionManager.list();
+            break;
+          case 'backup':
+          case 'save':
+            sessionManager.backup();
+            break;
+          case 'backups':
+            sessionManager.listBackups();
+            break;
+          case 'restore':
+            if (!sessionArg) {
+              logger.error('Please specify backup ID');
+              logger.info('Usage: zuppaclaude session restore <backup-id>');
+              logger.info('Run "zuppaclaude session backups" to see available backups');
+              process.exit(1);
+            }
+            sessionManager.restore(sessionArg);
+            break;
+          case 'export':
+            if (!sessionArg) {
+              logger.error('Please specify session ID');
+              logger.info('Usage: zuppaclaude session export <session-id> [output-file]');
+              logger.info('Run "zuppaclaude session list" to see session IDs');
+              process.exit(1);
+            }
+            sessionManager.export(sessionArg, args[3]);
+            break;
+          default:
+            logger.error(`Unknown session command: ${sessionCmd}`);
+            showSessionHelp();
+        }
+        break;
+
       case 'version':
       case 'v':
       case '-v':
@@ -108,6 +151,7 @@ Commands:
   install, i          Install ZuppaClaude components (default)
   uninstall, u        Uninstall ZuppaClaude components
   settings, s         Manage settings
+  session             Manage Claude Code sessions
   version, v          Show version
   help, h             Show this help
 
@@ -118,12 +162,20 @@ Settings Commands:
   settings reset      Reset settings to default
   settings path       Show settings file path
 
+Session Commands:
+  session list        List all sessions
+  session backup      Backup all sessions
+  session backups     List available backups
+  session restore     Restore from backup
+  session export      Export a specific session
+
 Examples:
   npx zuppaclaude                    # Install
   npx zuppaclaude install            # Install
   npx zuppaclaude uninstall          # Uninstall
   npx zuppaclaude settings show      # View settings
-  npx zuppaclaude settings export ~/backup.json
+  npx zuppaclaude session backup     # Backup sessions
+  npx zuppaclaude session restore 2026-01-05T12-00-00
 `);
 }
 
@@ -141,6 +193,24 @@ Examples:
   zuppaclaude settings export ~/backup.json
   zuppaclaude settings import ~/backup.json
   zuppaclaude settings reset
+`);
+}
+
+function showSessionHelp() {
+  console.log(`
+Session Commands:
+  list       List all Claude Code sessions
+  backup     Backup all sessions to ~/.config/zuppaclaude/backups/
+  backups    List available backups
+  restore    Restore sessions from a backup
+  export     Export a specific session to a file
+
+Examples:
+  zuppaclaude session list
+  zuppaclaude session backup
+  zuppaclaude session backups
+  zuppaclaude session restore 2026-01-05T12-00-00
+  zuppaclaude session export abc123 ./my-session.jsonl
 `);
 }
 
