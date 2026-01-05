@@ -8,6 +8,7 @@
 const { Installer } = require('../lib/installer');
 const { Settings } = require('../lib/settings');
 const { Logger } = require('../lib/utils/logger');
+const { UpdateManager } = require('../lib/components/updater');
 
 const args = process.argv.slice(2);
 const command = args[0] || 'install';
@@ -23,10 +24,25 @@ function getCloudArg(args) {
   return null;
 }
 
+/**
+ * Check for updates at startup (non-blocking for some commands)
+ */
+async function checkUpdates(skipCommands = ['version', 'v', '-v', '--version', 'help', 'h', '-h', '--help', 'update']) {
+  if (skipCommands.includes(command)) {
+    return;
+  }
+
+  const updater = new UpdateManager();
+  await updater.checkAndUpdate();
+}
+
 async function main() {
   const logger = new Logger();
 
   logger.banner();
+
+  // Check for updates at startup
+  await checkUpdates();
 
   try {
     switch (command) {
@@ -192,6 +208,37 @@ async function main() {
         }
         break;
 
+      case 'update':
+        const updateMgr = new UpdateManager();
+        const updateCmd = args[1] || 'check';
+
+        switch (updateCmd) {
+          case 'check':
+            await updateMgr.status();
+            break;
+          case 'now':
+          case 'install':
+            const result = await updateMgr.checkForUpdates();
+            if (result.hasUpdate) {
+              await updateMgr.update();
+            } else {
+              logger.success('You are already on the latest version');
+            }
+            break;
+          case 'enable':
+          case 'on':
+            updateMgr.enableAutoUpdate();
+            break;
+          case 'disable':
+          case 'off':
+            updateMgr.disableAutoUpdate();
+            break;
+          default:
+            logger.error(`Unknown update command: ${updateCmd}`);
+            showUpdateHelp();
+        }
+        break;
+
       case 'version':
       case 'v':
       case '-v':
@@ -233,6 +280,7 @@ Commands:
   settings, s         Manage settings
   session             Manage Claude Code sessions
   cloud               Manage cloud remotes (rclone)
+  update              Check for updates and manage auto-update
   version, v          Show version
   help, h             Show this help
 
@@ -249,6 +297,12 @@ Cloud Commands:
   cloud download <r>   Download backups from remote
   cloud backups <r>    List cloud backups
 
+Update Commands:
+  update               Check for updates
+  update now           Update to latest version
+  update enable        Enable auto-update (default)
+  update disable       Disable auto-update
+
 Session Commands:
   session list         List all sessions
   session backup       Backup sessions only
@@ -262,6 +316,7 @@ Examples:
   npx zuppaclaude backup --cloud gdrive        # Backup to Google Drive
   npx zuppaclaude restore 2026-01-05T12-00-00  # Restore from backup
   npx zuppaclaude cloud setup                  # Configure cloud
+  npx zuppaclaude update                       # Check for updates
 `);
 }
 
@@ -318,6 +373,22 @@ Examples:
 
 Supported providers (via rclone):
   Google Drive, Dropbox, OneDrive, S3, SFTP, FTP, and 40+ more
+`);
+}
+
+function showUpdateHelp() {
+  console.log(`
+Update Commands:
+  check      Check for updates (default)
+  now        Update to latest version immediately
+  enable     Enable auto-update at startup
+  disable    Disable auto-update
+
+Examples:
+  zuppaclaude update                         # Check for updates
+  zuppaclaude update now                     # Update immediately
+  zuppaclaude update enable                  # Enable auto-update
+  zuppaclaude update disable                 # Disable auto-update
 `);
 }
 
