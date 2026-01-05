@@ -4,7 +4,7 @@
   "description": "Claude Code power-up installer - SuperClaude + Spec Kit + Claude-Z + Claude HUD",
   "main": "lib/index.js",
   "bin": {
-    "zuppaclaude": "./bin/zuppaclaude.js"
+    "zuppaclaude": "bin/zuppaclaude.js"
   },
   "scripts": {
     "start": "node bin/zuppaclaude.js",
