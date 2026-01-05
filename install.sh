@@ -34,6 +34,7 @@ ZUPPACLAUDE_REPO="https://raw.githubusercontent.com/hasankaantan/zuppaclaude/mai
 
 # Global flags
 INSTALL_CLAUDE_Z=false
+INSTALL_CLAUDE_HUD=false
 ZAI_API_KEY=""
 NPM_USE_SUDO=false
 
@@ -180,7 +181,7 @@ command_exists() {
 #===============================================================================
 
 check_dependencies() {
-    log_step "Step 1/6: Checking Dependencies"
+    log_step "Step 1/7: Checking Dependencies"
 
     # Check home directory permissions first
     check_home_permissions || exit 1
@@ -380,7 +381,7 @@ check_dependencies() {
 #===============================================================================
 
 install_superclaude() {
-    log_step "Step 2/6: Installing SuperClaude Framework"
+    log_step "Step 2/7: Installing SuperClaude Framework"
 
     # Create directories
     mkdir -p "$COMMANDS_DIR"
@@ -430,7 +431,7 @@ install_superclaude() {
 #===============================================================================
 
 install_speckit() {
-    log_step "Step 3/6: Installing Spec Kit (specify-cli)"
+    log_step "Step 3/7: Installing Spec Kit (specify-cli)"
 
     case "$PACKAGE_MANAGER" in
         uv)
@@ -470,7 +471,7 @@ install_speckit() {
 #===============================================================================
 
 install_config() {
-    log_step "Step 4/6: Installing Configuration"
+    log_step "Step 4/7: Installing Configuration"
 
     CLAUDE_MD="$CLAUDE_DIR/CLAUDE.md"
 
@@ -555,7 +556,7 @@ CLAUDEMD
 #===============================================================================
 
 install_claude_z() {
-    log_step "Step 5/6: Installing Claude-Z (z.ai backend)"
+    log_step "Step 5/7: Installing Claude-Z (z.ai backend)"
 
     if [ "$INSTALL_CLAUDE_Z" = false ]; then
         log_info "Skipping Claude-Z installation (no API key provided)"
@@ -667,11 +668,88 @@ CLAUDEZEOF
 }
 
 #===============================================================================
+# Install Claude HUD (Status Display Plugin)
+#===============================================================================
+
+install_claude_hud() {
+    log_step "Step 6/7: Installing Claude HUD (Status Display)"
+
+    if [ "$INSTALL_CLAUDE_HUD" = false ]; then
+        log_info "Skipping Claude HUD installation"
+        return
+    fi
+
+    # Check Claude Code version
+    if ! command_exists claude; then
+        log_warning "Claude Code not found - Claude HUD requires Claude Code"
+        log_info "Install Claude Code first, then run: claude /plugin install claude-hud"
+        return
+    fi
+
+    # Check Claude Code version >= 1.0.80
+    local claude_version
+    claude_version=$(claude --version 2>/dev/null | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1)
+    if [ -n "$claude_version" ]; then
+        local major minor patch
+        major=$(echo "$claude_version" | cut -d. -f1)
+        minor=$(echo "$claude_version" | cut -d. -f2)
+        patch=$(echo "$claude_version" | cut -d. -f3)
+
+        # Check if version >= 1.0.80
+        if [ "$major" -lt 1 ] || ([ "$major" -eq 1 ] && [ "$minor" -eq 0 ] && [ "$patch" -lt 80 ]); then
+            log_warning "Claude Code version $claude_version detected"
+            log_warning "Claude HUD requires Claude Code v1.0.80 or later"
+            log_info "Update with: npm update -g @anthropic-ai/claude-code"
+            return
+        fi
+    fi
+
+    log_info "Installing Claude HUD plugin..."
+    log_info "This will add a status display showing context usage, tools, and progress"
+    echo ""
+
+    # Install via Claude Code plugin system
+    # Note: This creates a setup script that user runs inside Claude Code
+    local hud_setup_script="$HOME/.local/bin/setup-claude-hud"
+    mkdir -p "$HOME/.local/bin"
+
+    cat > "$hud_setup_script" << 'HUDEOF'
+#!/bin/bash
+# Claude HUD Setup Script
+# Run this script, then execute the commands inside Claude Code
+
+echo ""
+echo "╔═══════════════════════════════════════════════════════════════════╗"
+echo "║   Claude HUD Setup                                                ║"
+echo "╚═══════════════════════════════════════════════════════════════════╝"
+echo ""
+echo "Run these commands inside Claude Code to install Claude HUD:"
+echo ""
+echo "  1. /plugin marketplace add jarrodwatts/claude-hud"
+echo "  2. /plugin install claude-hud"
+echo "  3. /claude-hud:setup"
+echo ""
+echo "Claude HUD provides:"
+echo "  • Real-time context usage meter"
+echo "  • Active tool tracking"
+echo "  • Running agent status"
+echo "  • Todo progress display"
+echo ""
+HUDEOF
+
+    chmod +x "$hud_setup_script"
+
+    log_success "Claude HUD setup script created"
+    log_info "After installation, run: setup-claude-hud"
+    log_info "Then follow the instructions to complete setup inside Claude Code"
+}
+
+#===============================================================================
 # Verify Installation
 #===============================================================================
 
 verify_installation() {
-    log_step "Step 6/6: Verifying Installation"
+    log_step "Step 7/7: Verifying Installation"
 
     # Refresh PATH to find newly installed commands
     export PATH="$HOME/.local/bin:$HOME/.cargo/bin:$PATH"
@@ -755,6 +833,16 @@ verify_installation() {
         fi
     fi
 
+    # Check Claude HUD
+    if [ "$INSTALL_CLAUDE_HUD" = true ]; then
+        if [ -f "$HOME/.local/bin/setup-claude-hud" ]; then
+            log_success "Claude HUD: Setup script ready"
+            log_info "Run 'setup-claude-hud' for installation instructions"
+        else
+            log_warning "Claude HUD: Setup script not found"
+        fi
+    fi
+
     echo ""
 
     if [ "$all_good" = true ]; then
@@ -770,6 +858,9 @@ verify_installation() {
         echo "║   • Run 'specify --help' for Spec Kit commands                    ║"
         if [ "$INSTALL_CLAUDE_Z" = true ]; then
         echo "║   • Run 'claude-z' to use Claude with z.ai backend                ║"
+        fi
+        if [ "$INSTALL_CLAUDE_HUD" = true ]; then
+        echo "║   • Run 'setup-claude-hud' for HUD installation steps             ║"
         fi
         echo "║                                                                   ║"
         echo "╚═══════════════════════════════════════════════════════════════════╝"
@@ -817,6 +908,7 @@ main() {
     echo "  • Spec Kit CLI (spec-driven development)"
     echo "  • Custom CLAUDE.md configuration"
     echo "  • Claude-Z (optional - z.ai backend)"
+    echo "  • Claude HUD (optional - status display plugin)"
     echo ""
 
     # Ask to continue (read from /dev/tty to support curl | bash)
@@ -859,11 +951,38 @@ main() {
         log_info "Skipping Claude-Z installation"
     fi
 
+    # Ask about Claude HUD
+    echo ""
+    echo -e "${CYAN}═══════════════════════════════════════════════════════════════${NC}"
+    echo -e "${CYAN}  Claude HUD Setup (Optional)${NC}"
+    echo -e "${CYAN}═══════════════════════════════════════════════════════════════${NC}"
+    echo ""
+    echo "Claude HUD adds a real-time status display to Claude Code showing:"
+    echo "  • Context window usage meter"
+    echo "  • Active tools and file operations"
+    echo "  • Running agents and their duration"
+    echo "  • Todo/task progress"
+    echo ""
+    echo "Requires: Claude Code v1.0.80+, Node.js 18+"
+    echo "Source: https://github.com/jarrodwatts/claude-hud"
+    echo ""
+    echo -n "Do you want to install Claude HUD? [y/N] "
+    read -n 1 -r REPLY < /dev/tty 2>/dev/null || REPLY="n"
+    echo
+
+    if [[ $REPLY =~ ^[Yy]$ ]]; then
+        INSTALL_CLAUDE_HUD=true
+        log_success "Claude HUD will be installed"
+    else
+        log_info "Skipping Claude HUD installation"
+    fi
+
     check_dependencies
     install_superclaude
     install_speckit
     install_config
     install_claude_z
+    install_claude_hud
     verify_installation
 }
 

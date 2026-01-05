@@ -23,6 +23,7 @@ $ZUPPACLAUDE_REPO = "https://raw.githubusercontent.com/hasankaantan/zuppaclaude/
 
 # Global flags
 $script:INSTALL_CLAUDE_Z = $false
+$script:INSTALL_CLAUDE_HUD = $false
 $script:ZAI_API_KEY = ""
 
 #===============================================================================
@@ -86,7 +87,7 @@ function Test-Command {
 #===============================================================================
 
 function Test-Dependencies {
-    Write-Step "Step 1/6: Checking Dependencies"
+    Write-Step "Step 1/7: Checking Dependencies"
 
     $missing = @()
 
@@ -248,7 +249,7 @@ function Test-Dependencies {
 #===============================================================================
 
 function Install-SuperClaude {
-    Write-Step "Step 2/6: Installing SuperClaude Framework"
+    Write-Step "Step 2/7: Installing SuperClaude Framework"
 
     # Create directories
     if (-not (Test-Path $COMMANDS_DIR)) {
@@ -319,7 +320,7 @@ function Install-SuperClaude {
 #===============================================================================
 
 function Install-SpecKit {
-    Write-Step "Step 3/6: Installing Spec Kit (specify-cli)"
+    Write-Step "Step 3/7: Installing Spec Kit (specify-cli)"
 
     try {
         switch ($script:PACKAGE_MANAGER) {
@@ -359,7 +360,7 @@ function Install-SpecKit {
 #===============================================================================
 
 function Install-Config {
-    Write-Step "Step 4/6: Installing Configuration"
+    Write-Step "Step 4/7: Installing Configuration"
 
     $claudeMd = "$CLAUDE_DIR\CLAUDE.md"
 
@@ -401,7 +402,7 @@ Spec-driven development with ``specify`` CLI.
 #===============================================================================
 
 function Install-ClaudeZ {
-    Write-Step "Step 5/6: Installing Claude-Z (z.ai backend)"
+    Write-Step "Step 5/7: Installing Claude-Z (z.ai backend)"
 
     if (-not $script:INSTALL_CLAUDE_Z) {
         Write-Info "Skipping Claude-Z installation (no API key provided)"
@@ -505,11 +506,94 @@ powershell -ExecutionPolicy Bypass -File "%USERPROFILE%\.local\bin\claude-z.ps1"
 }
 
 #===============================================================================
+# Install Claude HUD (Status Display Plugin)
+#===============================================================================
+
+function Install-ClaudeHUD {
+    Write-Step "Step 6/7: Installing Claude HUD (Status Display)"
+
+    if (-not $script:INSTALL_CLAUDE_HUD) {
+        Write-Info "Skipping Claude HUD installation"
+        return
+    }
+
+    # Check Claude Code
+    if (-not (Test-Command "claude")) {
+        Write-Warning "Claude Code not found - Claude HUD requires Claude Code"
+        Write-Info "Install Claude Code first, then run the plugin commands in Claude Code"
+        return
+    }
+
+    # Check Claude Code version >= 1.0.80
+    $claudeVersion = claude --version 2>&1 | Select-String -Pattern '\d+\.\d+\.\d+' | ForEach-Object { $_.Matches[0].Value }
+    if ($claudeVersion) {
+        $versionParts = $claudeVersion.Split('.')
+        $major = [int]$versionParts[0]
+        $minor = [int]$versionParts[1]
+        $patch = [int]$versionParts[2]
+
+        if ($major -lt 1 -or ($major -eq 1 -and $minor -eq 0 -and $patch -lt 80)) {
+            Write-Warning "Claude Code version $claudeVersion detected"
+            Write-Warning "Claude HUD requires Claude Code v1.0.80 or later"
+            Write-Info "Update with: npm update -g @anthropic-ai/claude-code"
+            return
+        }
+    }
+
+    Write-Info "Installing Claude HUD plugin..."
+    Write-Info "This will add a status display showing context usage, tools, and progress"
+    Write-Host ""
+
+    # Create setup script
+    $localBin = "$env:USERPROFILE\.local\bin"
+    if (-not (Test-Path $localBin)) {
+        New-Item -ItemType Directory -Path $localBin -Force | Out-Null
+    }
+
+    $hudSetupScript = @'
+# Claude HUD Setup Script
+# Run this script, then execute the commands inside Claude Code
+
+Write-Host ""
+Write-Host "==================================================================" -ForegroundColor Magenta
+Write-Host "   Claude HUD Setup" -ForegroundColor Magenta
+Write-Host "==================================================================" -ForegroundColor Magenta
+Write-Host ""
+Write-Host "Run these commands inside Claude Code to install Claude HUD:"
+Write-Host ""
+Write-Host "  1. /plugin marketplace add jarrodwatts/claude-hud" -ForegroundColor Cyan
+Write-Host "  2. /plugin install claude-hud" -ForegroundColor Cyan
+Write-Host "  3. /claude-hud:setup" -ForegroundColor Cyan
+Write-Host ""
+Write-Host "Claude HUD provides:"
+Write-Host "  - Real-time context usage meter"
+Write-Host "  - Active tool tracking"
+Write-Host "  - Running agent status"
+Write-Host "  - Todo progress display"
+Write-Host ""
+'@
+
+    $hudSetupScript | Out-File -FilePath "$localBin\setup-claude-hud.ps1" -Encoding UTF8
+    Write-Success "Claude HUD setup script created"
+
+    # Create batch wrapper
+    $batchWrapper = @"
+@echo off
+powershell -ExecutionPolicy Bypass -File "%USERPROFILE%\.local\bin\setup-claude-hud.ps1" %*
+"@
+    $batchWrapper | Out-File -FilePath "$localBin\setup-claude-hud.cmd" -Encoding ASCII
+    Write-Success "setup-claude-hud.cmd wrapper created"
+
+    Write-Info "After installation, run: setup-claude-hud"
+    Write-Info "Then follow the instructions to complete setup inside Claude Code"
+}
+
+#===============================================================================
 # Verify Installation
 #===============================================================================
 
 function Test-Installation {
-    Write-Step "Step 6/6: Verifying Installation"
+    Write-Step "Step 7/7: Verifying Installation"
 
     $allGood = $true
 
@@ -567,6 +651,17 @@ function Test-Installation {
         }
     }
 
+    # Check Claude HUD
+    if ($script:INSTALL_CLAUDE_HUD) {
+        $hudSetupPath = "$env:USERPROFILE\.local\bin\setup-claude-hud.cmd"
+        if (Test-Path $hudSetupPath) {
+            Write-Success "Claude HUD: Setup script ready"
+            Write-Info "Run 'setup-claude-hud' for installation instructions"
+        } else {
+            Write-Warning "Claude HUD: Setup script not found"
+        }
+    }
+
     Write-Host ""
 
     if ($allGood) {
@@ -581,6 +676,9 @@ function Test-Installation {
         Write-Host "║   - Run 'specify --help' for Spec Kit commands                    ║" -ForegroundColor Green
         if ($script:INSTALL_CLAUDE_Z) {
         Write-Host "║   - Run 'claude-z' to use Claude with z.ai backend                ║" -ForegroundColor Green
+        }
+        if ($script:INSTALL_CLAUDE_HUD) {
+        Write-Host "║   - Run 'setup-claude-hud' for HUD installation steps             ║" -ForegroundColor Green
         }
         Write-Host "║                                                                   ║" -ForegroundColor Green
         Write-Host "╚═══════════════════════════════════════════════════════════════════╝" -ForegroundColor Green
@@ -604,6 +702,7 @@ function Main {
     Write-Host "  - Spec Kit CLI (spec-driven development)"
     Write-Host "  - Custom CLAUDE.md configuration"
     Write-Host "  - Claude-Z (optional - z.ai backend)"
+    Write-Host "  - Claude HUD (optional - status display plugin)"
     Write-Host ""
 
     $response = Read-Host "Continue with installation? [Y/n]"
@@ -639,11 +738,36 @@ function Main {
         Write-Info "Skipping Claude-Z installation"
     }
 
+    # Ask about Claude HUD
+    Write-Host ""
+    Write-Host "══════════════════════════════════════════════════════════════" -ForegroundColor Cyan
+    Write-Host "  Claude HUD Setup (Optional)" -ForegroundColor Cyan
+    Write-Host "══════════════════════════════════════════════════════════════" -ForegroundColor Cyan
+    Write-Host ""
+    Write-Host "Claude HUD adds a real-time status display to Claude Code showing:"
+    Write-Host "  - Context window usage meter"
+    Write-Host "  - Active tools and file operations"
+    Write-Host "  - Running agents and their duration"
+    Write-Host "  - Todo/task progress"
+    Write-Host ""
+    Write-Host "Requires: Claude Code v1.0.80+, Node.js 18+"
+    Write-Host "Source: https://github.com/jarrodwatts/claude-hud"
+    Write-Host ""
+
+    $response = Read-Host "Do you want to install Claude HUD? [y/N]"
+    if ($response -eq 'y' -or $response -eq 'Y') {
+        $script:INSTALL_CLAUDE_HUD = $true
+        Write-Success "Claude HUD will be installed"
+    } else {
+        Write-Info "Skipping Claude HUD installation"
+    }
+
     Test-Dependencies
     Install-SuperClaude
     Install-SpecKit
     Install-Config
     Install-ClaudeZ
+    Install-ClaudeHUD
     Test-Installation
 }
 

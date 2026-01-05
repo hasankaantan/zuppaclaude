@@ -36,13 +36,14 @@ bash uninstall.sh
 
 ## Architecture
 
-### Install Flow (6 steps)
+### Install Flow (7 steps)
 1. Dependency check (OS, Python 3.8+, git, Claude Code CLI)
 2. SuperClaude installation (git clone from GitHub)
 3. Spec Kit installation (pip3/pipx/uv)
 4. CLAUDE.md configuration download
 5. Claude-Z setup (optional, requires z.ai API key)
-6. Verification of all components
+6. Claude HUD setup (optional, status display plugin)
+7. Verification of all components
 
 ### Key Files
 | File | Purpose |
