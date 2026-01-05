@@ -13,6 +13,7 @@ ZuppaClaude, Claude Code deneyiminizi güçlendiren araçları tek komutla kurar
 - **SuperClaude**: 30+ slash komutu ile gelişmiş iş akışları
 - **Spec Kit**: Spec-driven development CLI aracı
 - **Claude-Z**: z.ai backend desteği (opsiyonel)
+- **Claude HUD**: Gerçek zamanlı durum göstergesi (opsiyonel)
 - **CLAUDE.md**: Optimize edilmiş sistem talimatları
 
 ### Hızlı Kurulum
@@ -120,6 +121,52 @@ claude-z
 - `zread` - Doküman okuma
 - `zai-mcp-server` - Z.AI MCP entegrasyonu
 
+### Claude HUD (Durum Göstergesi)
+
+Claude Code'a gerçek zamanlı statusline ekler. Kurulum sırasında etkinleştirmeyi seçebilirsiniz.
+
+**Gösterdikleri:**
+- Context window kullanımı
+- Aktif araçlar ve dosya işlemleri
+- Çalışan agent'lar
+- Todo/görev ilerlemesi
+
+**Kurulum sonrası:**
+```bash
+setup-claude-hud  # Talimatları gösterir
+```
+
+Ardından Claude Code içinde:
+```
+/plugin marketplace add jarrodwatts/claude-hud
+/plugin install claude-hud
+/claude-hud:setup
+```
+
+### Ayar Yönetimi
+
+ZuppaClaude seçimlerinizi kaydeder ve tekrar kurulumda otomatik kullanır.
+
+```bash
+# Ayarları görüntüle
+./zc-settings.sh show
+
+# Ayarları dışa aktar (yedekleme)
+./zc-settings.sh export ~/zc-backup.json
+
+# Ayarları içe aktar (geri yükleme)
+./zc-settings.sh import ~/zc-backup.json
+
+# Fabrika ayarlarına dön
+./zc-settings.sh reset
+```
+
+**Özellikler:**
+- Otomatik kayıt: Kurulum sonrası tercihler kaydedilir
+- Hızlı tekrar kurulum: Önceki ayarlarla tek komutla kurulum
+- API key koruması: Base64 encoded saklama
+- Uninstall koruması: Kaldırırken ayarları koruma opsiyonu
+
 ### Kaldırma
 
 **macOS / Linux:**
@@ -139,7 +186,9 @@ irm https://raw.githubusercontent.com/hasankaantan/zuppaclaude/main/uninstall.ps
 | SuperClaude | `~/.claude/commands/sc/` | `%USERPROFILE%\.claude\commands\sc\` |
 | Konfigürasyon | `~/.claude/CLAUDE.md` | `%USERPROFILE%\.claude\CLAUDE.md` |
 | Claude-Z | `~/.local/bin/claude-z` | `%USERPROFILE%\.local\bin\claude-z.cmd` |
+| Claude HUD | `~/.local/bin/setup-claude-hud` | `%USERPROFILE%\.local\bin\setup-claude-hud.cmd` |
 | Z.AI Config | `~/.config/zai/` | `%USERPROFILE%\.config\zai\` |
+| Ayarlar | `~/.config/zuppaclaude/` | `%USERPROFILE%\.config\zuppaclaude\` |
 
 ---
 
@@ -152,6 +201,7 @@ ZuppaClaude installs tools to supercharge your Claude Code experience with a sin
 - **SuperClaude**: 30+ slash commands for enhanced workflows
 - **Spec Kit**: Spec-driven development CLI tool
 - **Claude-Z**: z.ai backend support (optional)
+- **Claude HUD**: Real-time status display (optional)
 - **CLAUDE.md**: Optimized system instructions
 
 ### Quick Install
@@ -259,6 +309,60 @@ claude-z
 - `zread` - Document reading
 - `zai-mcp-server` - Z.AI MCP integration
 
+### Claude HUD (Status Display)
+
+Adds a real-time statusline to Claude Code. You can enable it during installation.
+
+**What it shows:**
+- Context window usage
+- Active tools and file operations
+- Running agents
+- Todo/task progress
+
+**After installation:**
+```bash
+setup-claude-hud  # Shows instructions
+```
+
+Then inside Claude Code:
+```
+/plugin marketplace add jarrodwatts/claude-hud
+/plugin install claude-hud
+/claude-hud:setup
+```
+
+### Settings Management
+
+ZuppaClaude saves your choices and automatically uses them on reinstall.
+
+```bash
+# View current settings
+./zc-settings.sh show
+
+# Export settings (backup)
+./zc-settings.sh export ~/zc-backup.json
+
+# Import settings (restore)
+./zc-settings.sh import ~/zc-backup.json
+
+# Reset to defaults
+./zc-settings.sh reset
+```
+
+**Windows:**
+```powershell
+.\zc-settings.ps1 show
+.\zc-settings.ps1 export ~\zc-backup.json
+.\zc-settings.ps1 import ~\zc-backup.json
+.\zc-settings.ps1 reset
+```
+
+**Features:**
+- Auto-save: Preferences saved after installation
+- Quick reinstall: One-command reinstall with previous settings
+- API key protection: Base64 encoded storage
+- Uninstall protection: Option to preserve settings when uninstalling
+
 ### Uninstall
 
 **macOS / Linux:**
@@ -278,7 +382,9 @@ irm https://raw.githubusercontent.com/hasankaantan/zuppaclaude/main/uninstall.ps
 | SuperClaude | `~/.claude/commands/sc/` | `%USERPROFILE%\.claude\commands\sc\` |
 | Configuration | `~/.claude/CLAUDE.md` | `%USERPROFILE%\.claude\CLAUDE.md` |
 | Claude-Z | `~/.local/bin/claude-z` | `%USERPROFILE%\.local\bin\claude-z.cmd` |
+| Claude HUD | `~/.local/bin/setup-claude-hud` | `%USERPROFILE%\.local\bin\setup-claude-hud.cmd` |
 | Z.AI Config | `~/.config/zai/` | `%USERPROFILE%\.config\zai\` |
+| Settings | `~/.config/zuppaclaude/` | `%USERPROFILE%\.config\zuppaclaude\` |
 
 ### Troubleshooting
 
@@ -305,6 +411,7 @@ Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 - [SuperClaude Framework](https://github.com/SuperClaude-Org/SuperClaude_Framework)
 - [GitHub Spec Kit](https://github.com/github/spec-kit)
 - [z.ai](https://z.ai)
+- [Claude HUD](https://github.com/jarrodwatts/claude-hud) - Jarrod Watts
 
 ## License
 
