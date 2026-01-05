@@ -202,6 +202,21 @@ async function main() {
             }
             await cloudMgr.listCloudBackups(cloudRemote);
             break;
+          case 'delete':
+          case 'rm':
+            if (!cloudRemote) {
+              logger.error('Please specify remote');
+              logger.info('Usage: zuppaclaude cloud delete <remote> [backup-id]');
+              process.exit(1);
+            }
+            if (args[3]) {
+              // Direct delete with backup ID
+              await cloudMgr.deleteCloudBackup(cloudRemote, args[3]);
+            } else {
+              // Interactive delete menu
+              await cloudMgr.deleteCloudBackupInteractive(cloudRemote);
+            }
+            break;
           default:
             logger.error(`Unknown cloud command: ${cloudCmd}`);
             showCloudHelp();
@@ -296,6 +311,7 @@ Cloud Commands:
   cloud upload <r>     Upload backups to remote
   cloud download <r>   Download backups from remote
   cloud backups <r>    List cloud backups
+  cloud delete <r>     Delete backup from cloud (interactive)
 
 Update Commands:
   update               Check for updates
@@ -363,6 +379,7 @@ Cloud Commands (requires rclone):
   upload     Upload backups to a cloud remote
   download   Download backups from a cloud remote
   backups    List backups stored on a cloud remote
+  delete     Delete backup from cloud (interactive menu)
 
 Examples:
   zuppaclaude cloud setup                    # Setup instructions
@@ -370,6 +387,8 @@ Examples:
   zuppaclaude cloud upload gdrive            # Upload all backups
   zuppaclaude cloud download gdrive          # Download all backups
   zuppaclaude cloud backups gdrive           # List cloud backups
+  zuppaclaude cloud delete gdrive            # Interactive delete menu
+  zuppaclaude cloud delete gdrive Jan-05-2026-14.09  # Direct delete
 
 Supported providers (via rclone):
   Google Drive, Dropbox, OneDrive, S3, SFTP, FTP, and 40+ more
