@@ -29,6 +29,9 @@ NC='\033[0m' # No Color
 CLAUDE_DIR="$HOME/.claude"
 COMMANDS_DIR="$CLAUDE_DIR/commands"
 ZAI_CONFIG_DIR="$HOME/.config/zai"
+ZUPPACLAUDE_CONFIG_DIR="$HOME/.config/zuppaclaude"
+SETTINGS_FILE="$ZUPPACLAUDE_CONFIG_DIR/zc-settings.json"
+SETTINGS_VERSION="1.0"
 SUPERCLAUDE_REPO="https://github.com/SuperClaude-Org/SuperClaude_Framework.git"
 ZUPPACLAUDE_REPO="https://raw.githubusercontent.com/hasankaantan/zuppaclaude/main"
 
@@ -37,10 +40,183 @@ INSTALL_CLAUDE_Z=false
 INSTALL_CLAUDE_HUD=false
 ZAI_API_KEY=""
 NPM_USE_SUDO=false
+HAS_EXISTING_SETTINGS=false
 
 #===============================================================================
 # Helper Functions
 #===============================================================================
+
+#===============================================================================
+# Settings Management
+#===============================================================================
+
+# Encode string to base64 (for API keys)
+encode_base64() {
+    echo -n "$1" | base64
+}
+
+# Decode base64 string
+decode_base64() {
+    echo -n "$1" | base64 -d 2>/dev/null || echo "$1"
+}
+
+# Check if settings file exists
+has_existing_settings() {
+    [ -f "$SETTINGS_FILE" ]
+}
+
+# Load settings from JSON file
+load_settings() {
+    if ! has_existing_settings; then
+        return 1
+    fi
+
+    log_info "Found existing settings: $SETTINGS_FILE"
+
+    # Parse settings using basic tools (no jq dependency)
+    if command_exists python3; then
+        # Use Python for reliable JSON parsing
+        local settings
+        settings=$(python3 -c "
+import json
+import sys
+try:
+    with open('$SETTINGS_FILE', 'r') as f:
+        s = json.load(f)
+    c = s.get('components', {})
+    print('INSTALL_CLAUDE_Z=' + ('true' if c.get('claude_z', {}).get('installed') else 'false'))
+    print('INSTALL_CLAUDE_HUD=' + ('true' if c.get('claude_hud', {}).get('installed') else 'false'))
+    api_key = c.get('claude_z', {}).get('api_key_encoded', '')
+    if api_key:
+        import base64
+        try:
+            print('ZAI_API_KEY=' + base64.b64decode(api_key).decode())
+        except:
+            print('ZAI_API_KEY=')
+    else:
+        print('ZAI_API_KEY=')
+except Exception as e:
+    print('# Error: ' + str(e), file=sys.stderr)
+    sys.exit(1)
+" 2>/dev/null)
+
+        if [ $? -eq 0 ]; then
+            eval "$settings"
+            HAS_EXISTING_SETTINGS=true
+            return 0
+        fi
+    fi
+
+    # Fallback: Use grep for basic parsing
+    if grep -q '"claude_z"' "$SETTINGS_FILE" 2>/dev/null; then
+        if grep -q '"installed": true' "$SETTINGS_FILE" 2>/dev/null; then
+            INSTALL_CLAUDE_Z=true
+        fi
+    fi
+    if grep -q '"claude_hud"' "$SETTINGS_FILE" 2>/dev/null; then
+        INSTALL_CLAUDE_HUD=true
+    fi
+
+    HAS_EXISTING_SETTINGS=true
+    return 0
+}
+
+# Save settings to JSON file
+save_settings() {
+    mkdir -p "$ZUPPACLAUDE_CONFIG_DIR"
+
+    local timestamp
+    timestamp=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+
+    local created_at="$timestamp"
+    if [ -f "$SETTINGS_FILE" ] && command_exists python3; then
+        created_at=$(python3 -c "
+import json
+try:
+    with open('$SETTINGS_FILE', 'r') as f:
+        print(json.load(f).get('created', '$timestamp'))
+except:
+    print('$timestamp')
+" 2>/dev/null) || created_at="$timestamp"
+    fi
+
+    # Encode API key
+    local api_key_encoded=""
+    if [ -n "$ZAI_API_KEY" ]; then
+        api_key_encoded=$(encode_base64 "$ZAI_API_KEY")
+    fi
+
+    # Create JSON settings file
+    cat > "$SETTINGS_FILE" << SETTINGSEOF
+{
+  "version": "$SETTINGS_VERSION",
+  "created": "$created_at",
+  "updated": "$timestamp",
+  "components": {
+    "superclaude": {
+      "installed": true,
+      "path": "$COMMANDS_DIR/sc"
+    },
+    "speckit": {
+      "installed": true
+    },
+    "claude_z": {
+      "installed": $INSTALL_CLAUDE_Z,
+      "api_key_encoded": "$api_key_encoded",
+      "config_dir": "$ZAI_CONFIG_DIR"
+    },
+    "claude_hud": {
+      "installed": $INSTALL_CLAUDE_HUD
+    }
+  },
+  "preferences": {
+    "auto_update_check": true,
+    "backup_configs": true
+  }
+}
+SETTINGSEOF
+
+    chmod 600 "$SETTINGS_FILE"
+    log_success "Settings saved to $SETTINGS_FILE"
+}
+
+# Display current settings
+show_settings() {
+    if ! has_existing_settings; then
+        log_info "No existing settings found"
+        return 1
+    fi
+
+    echo ""
+    echo -e "${CYAN}═══════════════════════════════════════════════════════════════${NC}"
+    echo -e "${CYAN}  Existing ZuppaClaude Settings${NC}"
+    echo -e "${CYAN}═══════════════════════════════════════════════════════════════${NC}"
+    echo ""
+
+    if command_exists python3; then
+        python3 -c "
+import json
+try:
+    with open('$SETTINGS_FILE', 'r') as f:
+        s = json.load(f)
+    c = s.get('components', {})
+    print('  Version: ' + s.get('version', 'unknown'))
+    print('  Last updated: ' + s.get('updated', 'unknown'))
+    print('')
+    print('  Components:')
+    print('    • SuperClaude: ' + ('Yes' if c.get('superclaude', {}).get('installed') else 'No'))
+    print('    • Spec Kit: ' + ('Yes' if c.get('speckit', {}).get('installed') else 'No'))
+    print('    • Claude-Z: ' + ('Yes' if c.get('claude_z', {}).get('installed') else 'No'))
+    print('    • Claude HUD: ' + ('Yes' if c.get('claude_hud', {}).get('installed') else 'No'))
+except Exception as e:
+    print('  Error reading settings: ' + str(e))
+" 2>/dev/null
+    else
+        echo "  Settings file: $SETTINGS_FILE"
+        echo "  (Install python3 for detailed view)"
+    fi
+    echo ""
+}
 
 print_banner() {
     echo -e "${PURPLE}"
