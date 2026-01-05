@@ -1,81 +1,33 @@
 ---
 name: zc:session
-description: "Claude Code session management - list, backup, restore, export"
-category: utility
+description: "Session management - list, backup, restore, export"
 ---
 
-# /zc:session - Session Management
+Execute based on subcommand:
 
-Manage your Claude Code conversation sessions.
-
-## Usage
-
-```
-/zc:session <action> [args]
-```
-
-## Actions
-
-| Action | Description |
-|--------|-------------|
-| `list` | List all sessions with details |
-| `backup` | Backup sessions only (not settings) |
-| `backups` | List available backups |
-| `restore` | Restore sessions from backup |
-| `export` | Export a specific session to file |
-
-## Examples
-
-```
-/zc:session list                              # List all sessions
-/zc:session backup                            # Backup sessions
-/zc:session backups                           # List backups
-/zc:session restore 2026-01-05T12-00-00       # Restore from backup
-/zc:session export abc123 ./my-session.jsonl  # Export session
-```
-
-## Execution
-
-### List Sessions
+**List sessions (default):**
 ```bash
 npx zuppaclaude session list
 ```
 
-Shows:
-- Project paths
-- Session IDs
-- Session types (main vs agent)
-- Size and last modified
-
-### Backup Sessions
+**Backup sessions:**
 ```bash
 npx zuppaclaude session backup
 ```
 
-### List Backups
+**List backups:**
 ```bash
 npx zuppaclaude session backups
 ```
 
-### Restore Sessions
+**Restore:**
 ```bash
 npx zuppaclaude session restore <backup-id>
 ```
 
-### Export Session
+**Export session:**
 ```bash
 npx zuppaclaude session export <session-id> [output-file]
 ```
 
-## Session Types
-
-| Icon | Type | Description |
-|------|------|-------------|
-| 💬 | Main | Primary conversation sessions |
-| 🤖 | Agent | Sub-agent sessions |
-
-## Tips
-
-- Use `/zc:backup` for full backup (sessions + settings)
-- Sessions are stored in `~/.claude/projects/`
-- Backups are stored in `~/.config/zuppaclaude/backups/`
+Run the appropriate command immediately based on user input.
