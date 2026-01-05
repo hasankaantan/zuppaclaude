@@ -1,5 +1,9 @@
 # 🍝 ZuppaClaude
 
+[![npm version](https://badge.fury.io/js/zuppaclaude.svg)](https://www.npmjs.com/package/zuppaclaude)
+[![npm downloads](https://img.shields.io/npm/dm/zuppaclaude.svg)](https://www.npmjs.com/package/zuppaclaude)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 > ⚡ Claude Code için tek komutla kurulum paketi - SuperClaude + Spec Kit + Claude-Z + Claude HUD
 
 <p align="center">
