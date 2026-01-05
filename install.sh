@@ -1087,6 +1087,22 @@ main() {
     echo "  • Claude HUD (optional - status display plugin)"
     echo ""
 
+    # Check for existing settings
+    local use_existing_settings=false
+    if has_existing_settings; then
+        show_settings
+        echo -n "Use these saved settings? [Y/n] "
+        read -n 1 -r REPLY < /dev/tty 2>/dev/null || REPLY="y"
+        echo
+        if [[ ! $REPLY =~ ^[Nn]$ ]]; then
+            load_settings
+            use_existing_settings=true
+            log_success "Using saved settings"
+        else
+            log_info "Starting fresh configuration"
+        fi
+    fi
+
     # Ask to continue (read from /dev/tty to support curl | bash)
     echo -n "Continue with installation? [Y/n] "
     read -n 1 -r REPLY < /dev/tty 2>/dev/null || REPLY="y"
@@ -1096,61 +1112,64 @@ main() {
         exit 0
     fi
 
-    # Ask about Claude-Z / z.ai
-    echo ""
-    echo -e "${CYAN}═══════════════════════════════════════════════════════════════${NC}"
-    echo -e "${CYAN}  Claude-Z Setup (Optional)${NC}"
-    echo -e "${CYAN}═══════════════════════════════════════════════════════════════${NC}"
-    echo ""
-    echo "Claude-Z allows you to use Claude Code with z.ai backend."
-    echo "This provides additional MCP servers and features."
-    echo ""
-    echo -n "Do you want to install Claude-Z? [y/N] "
-    read -n 1 -r REPLY < /dev/tty 2>/dev/null || REPLY="n"
-    echo
-
-    if [[ $REPLY =~ ^[Yy]$ ]]; then
+    # Skip questions if using existing settings
+    if [ "$use_existing_settings" = false ]; then
+        # Ask about Claude-Z / z.ai
         echo ""
-        echo "Enter your Z.AI API key (get it from https://z.ai):"
-        echo -n "API Key: "
-        read -s ZAI_API_KEY < /dev/tty 2>/dev/null || ZAI_API_KEY=""
+        echo -e "${CYAN}═══════════════════════════════════════════════════════════════${NC}"
+        echo -e "${CYAN}  Claude-Z Setup (Optional)${NC}"
+        echo -e "${CYAN}═══════════════════════════════════════════════════════════════${NC}"
         echo ""
+        echo "Claude-Z allows you to use Claude Code with z.ai backend."
+        echo "This provides additional MCP servers and features."
+        echo ""
+        echo -n "Do you want to install Claude-Z? [y/N] "
+        read -n 1 -r REPLY < /dev/tty 2>/dev/null || REPLY="n"
+        echo
 
-        if [ -n "$ZAI_API_KEY" ]; then
-            INSTALL_CLAUDE_Z=true
-            log_success "Z.AI API key received"
+        if [[ $REPLY =~ ^[Yy]$ ]]; then
+            echo ""
+            echo "Enter your Z.AI API key (get it from https://z.ai):"
+            echo -n "API Key: "
+            read -s ZAI_API_KEY < /dev/tty 2>/dev/null || ZAI_API_KEY=""
+            echo ""
+
+            if [ -n "$ZAI_API_KEY" ]; then
+                INSTALL_CLAUDE_Z=true
+                log_success "Z.AI API key received"
+            else
+                log_warning "No API key provided, skipping Claude-Z"
+                INSTALL_CLAUDE_Z=false
+            fi
         else
-            log_warning "No API key provided, skipping Claude-Z"
-            INSTALL_CLAUDE_Z=false
+            log_info "Skipping Claude-Z installation"
         fi
-    else
-        log_info "Skipping Claude-Z installation"
-    fi
 
-    # Ask about Claude HUD
-    echo ""
-    echo -e "${CYAN}═══════════════════════════════════════════════════════════════${NC}"
-    echo -e "${CYAN}  Claude HUD Setup (Optional)${NC}"
-    echo -e "${CYAN}═══════════════════════════════════════════════════════════════${NC}"
-    echo ""
-    echo "Claude HUD adds a real-time status display to Claude Code showing:"
-    echo "  • Context window usage meter"
-    echo "  • Active tools and file operations"
-    echo "  • Running agents and their duration"
-    echo "  • Todo/task progress"
-    echo ""
-    echo "Requires: Claude Code v1.0.80+, Node.js 18+"
-    echo "Source: https://github.com/jarrodwatts/claude-hud"
-    echo ""
-    echo -n "Do you want to install Claude HUD? [y/N] "
-    read -n 1 -r REPLY < /dev/tty 2>/dev/null || REPLY="n"
-    echo
+        # Ask about Claude HUD
+        echo ""
+        echo -e "${CYAN}═══════════════════════════════════════════════════════════════${NC}"
+        echo -e "${CYAN}  Claude HUD Setup (Optional)${NC}"
+        echo -e "${CYAN}═══════════════════════════════════════════════════════════════${NC}"
+        echo ""
+        echo "Claude HUD adds a real-time status display to Claude Code showing:"
+        echo "  • Context window usage meter"
+        echo "  • Active tools and file operations"
+        echo "  • Running agents and their duration"
+        echo "  • Todo/task progress"
+        echo ""
+        echo "Requires: Claude Code v1.0.80+, Node.js 18+"
+        echo "Source: https://github.com/jarrodwatts/claude-hud"
+        echo ""
+        echo -n "Do you want to install Claude HUD? [y/N] "
+        read -n 1 -r REPLY < /dev/tty 2>/dev/null || REPLY="n"
+        echo
 
-    if [[ $REPLY =~ ^[Yy]$ ]]; then
-        INSTALL_CLAUDE_HUD=true
-        log_success "Claude HUD will be installed"
-    else
-        log_info "Skipping Claude HUD installation"
+        if [[ $REPLY =~ ^[Yy]$ ]]; then
+            INSTALL_CLAUDE_HUD=true
+            log_success "Claude HUD will be installed"
+        else
+            log_info "Skipping Claude HUD installation"
+        fi
     fi
 
     check_dependencies
