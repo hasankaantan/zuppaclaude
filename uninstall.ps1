@@ -2,7 +2,10 @@
 #   ZuppaClaude Uninstaller (Windows)
 #===============================================================================
 
+# Config
 $CLAUDE_DIR = "$env:USERPROFILE\.claude"
+$ZUPPACLAUDE_CONFIG_DIR = "$env:USERPROFILE\.config\zuppaclaude"
+$SETTINGS_FILE = "$ZUPPACLAUDE_CONFIG_DIR\zc-settings.json"
 
 Write-Host ""
 Write-Host "╔═══════════════════════════════════════════════════════════════════╗" -ForegroundColor Cyan
@@ -15,6 +18,7 @@ Write-Host "  - SuperClaude commands (~\.claude\commands\sc\)"
 Write-Host "  - CLAUDE.md configuration (~\.claude\CLAUDE.md)"
 Write-Host "  - Spec Kit CLI (specify-cli)"
 Write-Host "  - Claude-Z script (~\.local\bin\claude-z.*)"
+Write-Host "  - Claude HUD setup script (~\.local\bin\setup-claude-hud.*)"
 Write-Host "  - Z.AI configuration (~\.config\zai\)"
 Write-Host ""
 
@@ -25,6 +29,26 @@ if ($response -ne 'y' -and $response -ne 'Y') {
 }
 
 Write-Host ""
+
+# Ask about preserving settings
+$keepSettings = $false
+if (Test-Path $SETTINGS_FILE) {
+    Write-Host "══════════════════════════════════════════════════════════════" -ForegroundColor Cyan
+    Write-Host "  Settings Preservation" -ForegroundColor Cyan
+    Write-Host "══════════════════════════════════════════════════════════════" -ForegroundColor Cyan
+    Write-Host ""
+    Write-Host "Found saved settings at: $SETTINGS_FILE"
+    Write-Host "Keeping settings allows quick reinstall with your previous choices."
+    Write-Host ""
+    $response = Read-Host "Keep settings for future reinstall? [Y/n]"
+    if ($response -ne 'n' -and $response -ne 'N') {
+        $keepSettings = $true
+        Write-Host "[OK] Settings will be preserved" -ForegroundColor Green
+    } else {
+        Write-Host "[!] Settings will be removed" -ForegroundColor Yellow
+    }
+    Write-Host ""
+}
 
 # Remove SuperClaude
 $scDir = "$CLAUDE_DIR\commands\sc"
@@ -78,6 +102,22 @@ if (Test-Path $claudeZCmd) {
     Write-Host "[!] Claude-Z wrapper not found (cmd)" -ForegroundColor Yellow
 }
 
+# Remove Claude HUD setup scripts
+$hudSetupPs1 = "$env:USERPROFILE\.local\bin\setup-claude-hud.ps1"
+$hudSetupCmd = "$env:USERPROFILE\.local\bin\setup-claude-hud.cmd"
+if (Test-Path $hudSetupPs1) {
+    Remove-Item -Force $hudSetupPs1
+    Write-Host "[OK] Claude HUD setup script removed (ps1)" -ForegroundColor Green
+} else {
+    Write-Host "[!] Claude HUD setup script not found (ps1)" -ForegroundColor Yellow
+}
+if (Test-Path $hudSetupCmd) {
+    Remove-Item -Force $hudSetupCmd
+    Write-Host "[OK] Claude HUD setup wrapper removed (cmd)" -ForegroundColor Green
+} else {
+    Write-Host "[!] Claude HUD setup wrapper not found (cmd)" -ForegroundColor Yellow
+}
+
 # Remove Z.AI configuration
 $zaiConfigDir = "$env:USERPROFILE\.config\zai"
 if (Test-Path $zaiConfigDir) {
@@ -87,8 +127,22 @@ if (Test-Path $zaiConfigDir) {
     Write-Host "[!] Z.AI configuration not found" -ForegroundColor Yellow
 }
 
+# Handle settings
+if ($keepSettings) {
+    Write-Host "[OK] Settings preserved at: $SETTINGS_FILE" -ForegroundColor Green
+} else {
+    if (Test-Path $ZUPPACLAUDE_CONFIG_DIR) {
+        Remove-Item -Recurse -Force $ZUPPACLAUDE_CONFIG_DIR
+        Write-Host "[OK] ZuppaClaude settings removed" -ForegroundColor Green
+    }
+}
+
 Write-Host ""
 Write-Host "╔═══════════════════════════════════════════════════════════════════╗" -ForegroundColor Green
 Write-Host "║   Uninstall complete!                                             ║" -ForegroundColor Green
 Write-Host "║   Restart Claude Code to apply changes.                           ║" -ForegroundColor Green
+if ($keepSettings) {
+Write-Host "║                                                                   ║" -ForegroundColor Green
+Write-Host "║   Settings preserved - reinstall will use your saved config.      ║" -ForegroundColor Green
+}
 Write-Host "╚═══════════════════════════════════════════════════════════════════╝" -ForegroundColor Green
