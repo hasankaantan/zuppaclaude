@@ -1,18 +1,15 @@
 ---
 name: zc:backup
-description: "Full backup - sessions + settings + optional cloud upload"
+description: "Backup sessions and settings"
 ---
 
-Execute this command immediately without explanation:
+IMMEDIATELY run this bash command without asking questions or explaining:
 
 ```bash
 npx zuppaclaude backup
 ```
 
-If user specified a cloud remote (e.g., `/zc:backup gdrive`), run:
-
+If argument provided (e.g. `/zc:backup gdrive`), run:
 ```bash
-npx zuppaclaude backup --cloud <remote>
+npx zuppaclaude backup --cloud {argument}
 ```
-
-Display the output to the user.

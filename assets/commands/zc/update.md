@@ -1,12 +1,10 @@
 ---
 name: zc:update
-description: "Update ZuppaClaude to latest version"
+description: "Update ZuppaClaude"
 ---
 
-Execute this command immediately:
+IMMEDIATELY run this bash command without asking questions or explaining:
 
 ```bash
-npx zuppaclaude update now
+npx zuppaclaude@latest update now
 ```
-
-This will check for updates and install if available.

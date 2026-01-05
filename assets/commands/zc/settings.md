@@ -1,12 +1,10 @@
 ---
 name: zc:settings
-description: "ZuppaClaude settings - view, export, import, reset"
+description: "Show ZuppaClaude settings"
 ---
 
-Execute this command immediately without explanation:
+IMMEDIATELY run this bash command without asking questions or explaining:
 
 ```bash
 npx zuppaclaude settings show
 ```
-
-Then display the output to the user.
