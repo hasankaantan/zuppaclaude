@@ -197,6 +197,27 @@ npx zuppaclaude settings reset             # 🔄 Fabrika ayarları
 | 🔐 API key koruması | Base64 encoded saklama |
 | 🛡️ Uninstall koruması | Kaldırırken ayarları koruma opsiyonu |
 
+### 💾 Session Yedekleme
+
+Claude Code session'larınızı yedekleyin ve geri yükleyin. Context kaybı, format veya compacting durumlarında kullanışlı.
+
+```bash
+npx zuppaclaude session list        # 📋 Tüm session'ları listele
+npx zuppaclaude session backup      # 💾 Tüm session'ları yedekle
+npx zuppaclaude session backups     # 📦 Mevcut yedekleri listele
+npx zuppaclaude session restore <id> # ♻️ Yedekten geri yükle
+npx zuppaclaude session export <id>  # 📤 Belirli session'ı export et
+```
+
+**📁 Yedek konumu:** `~/.config/zuppaclaude/backups/`
+
+**✨ Özellikler:**
+| Özellik | Açıklama |
+|---------|----------|
+| 🔒 Güvenli restore | Mevcut session'lar üzerine yazılmaz |
+| 📜 History desteği | Command history de yedeklenir |
+| 📋 Manifest | Her yedekte metadata saklanır |
+
 ### 🗑️ Kaldırma
 
 **📦 NPM ile:**
@@ -422,6 +443,27 @@ npx zuppaclaude settings reset             # 🔄 Reset to defaults
 | ⚡ Quick reinstall | One-command reinstall with previous settings |
 | 🔐 API key protection | Base64 encoded storage |
 | 🛡️ Uninstall protection | Option to preserve settings when uninstalling |
+
+### 💾 Session Backup
+
+Backup and restore your Claude Code sessions. Useful for context loss, formatting, or conversation compacting.
+
+```bash
+npx zuppaclaude session list        # 📋 List all sessions
+npx zuppaclaude session backup      # 💾 Backup all sessions
+npx zuppaclaude session backups     # 📦 List available backups
+npx zuppaclaude session restore <id> # ♻️ Restore from backup
+npx zuppaclaude session export <id>  # 📤 Export specific session
+```
+
+**📁 Backup location:** `~/.config/zuppaclaude/backups/`
+
+**✨ Features:**
+| Feature | Description |
+|---------|-------------|
+| 🔒 Safe restore | Existing sessions are not overwritten |
+| 📜 History support | Command history is also backed up |
+| 📋 Manifest | Metadata saved with each backup |
 
 ### 🗑️ Uninstall
 
