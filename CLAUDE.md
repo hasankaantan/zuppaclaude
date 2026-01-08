@@ -1,6 +1,6 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code when working with this repository.
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 ## Project Overview
 
@@ -28,32 +28,41 @@ npx zuppaclaude help         # Show all commands
 
 ## Architecture
 
-### Key Directories
-```
-bin/                  # CLI entry point
-lib/
-  components/         # Feature installers
-    backup.js         # Unified backup manager
-    claudehud.js      # HUD auto-installer
-    claudez.js        # z.ai backend
-    cloud.js          # rclone cloud sync
-    session.js        # Session management
-    superclaude.js    # SuperClaude installer
-    speckit.js        # Spec Kit installer
-  utils/              # Shared utilities
-    logger.js         # Console output
-    platform.js       # OS detection
-    prompts.js        # User input
-  installer.js        # Main install flow
-  uninstaller.js      # Removal flow
-  settings.js         # Settings management
-assets/
-  CLAUDE.md           # Bundled config for users
-  commands/zc/        # Slash command skills
-```
+### CLI Entry Point
+`bin/zuppaclaude.js` - Command router that dispatches to appropriate managers:
+- `install` → `Installer.run()`
+- `backup/restore` → `BackupManager`
+- `session` → `SessionManager`
+- `cloud` → `CloudManager`
+- `settings` → `Settings`
+- `update` → `UpdateManager`
+
+### Component Classes (lib/components/)
+Each component follows install/verify pattern:
+- `SuperClaudeInstaller` - Git clones framework to `~/.claude/commands/sc/`
+- `SpecKitInstaller` - Pip installs `specify` CLI via uv/pipx/pip
+- `ConfigInstaller` - Copies bundled CLAUDE.md to `~/.claude/`
+- `ClaudeZInstaller` - Creates `claude-z` wrapper script with MCP config
+- `ClaudeHUDInstaller` - Clones, builds, and configures statusline in Claude settings
+- `CommandsInstaller` - Copies `/zc:*` slash commands to `~/.claude/commands/zc/`
+- `SessionManager` - Lists/backups/exports Claude conversation sessions
+- `BackupManager` - Full backup orchestrator (sessions + settings + history)
+- `CloudManager` - rclone integration for remote backup sync
+- `UpdateManager` - Auto-update checker with npm registry polling
+
+### Shared Utilities (lib/utils/)
+- `Platform` - OS detection, path resolution, command existence checks
+- `Logger` - Styled console output with colored status indicators
+- `Prompts` - Interactive readline interface for user input
+
+### Key Design Patterns
+- **Zero external npm dependencies** - Uses only Node.js built-ins
+- **Component isolation** - Each installer is independent and testable
+- **Settings persistence** - JSON config at `~/.config/zuppaclaude/zc-settings.json`
+- **Multi-device backups** - Stored under `backups/{hostname}/{username}/`
 
 ### Install Flow (9 steps)
-1. Dependency check (Node 16+, Claude Code CLI)
+1. Dependency check (Node 18+, Claude Code v2.x)
 2. SuperClaude (git clone)
 3. Spec Kit (pip3/pipx/uv)
 4. CLAUDE.md (bundled copy)
@@ -63,19 +72,26 @@ assets/
 8. ZC Commands (slash command skills)
 9. Settings save
 
-### Settings Location
-- Config: `~/.config/zuppaclaude/zc-settings.json`
-- Backups: `~/.config/zuppaclaude/backups/`
-- Claude HUD: `~/.claude/plugins/claude-hud/`
-- Statusline: `~/.claude/settings.json`
-
 ## Development
 
 ```bash
-node bin/zuppaclaude.js          # Run locally
-npm version patch                # Bump version
-npm publish --access public      # Publish to npm
+node bin/zuppaclaude.js              # Run full installer locally
+node bin/zuppaclaude.js uninstall    # Test uninstaller
+node bin/zuppaclaude.js backup       # Test backup flow
+DEBUG=1 node bin/zuppaclaude.js      # Enable stack traces on errors
 ```
+
+### Publishing
+```bash
+npm version patch                # Bump version (updates package.json)
+npm publish --access public      # Publish to npm registry
+```
+
+### Adding New Components
+1. Create class in `lib/components/newfeature.js` with `install()` and `verify()` methods
+2. Export from `lib/components/index.js`
+3. Import and instantiate in `lib/installer.js`
+4. Add step to `run()` method following existing pattern
 
 ## Git Commit Guidelines
 

@@ -64,9 +64,10 @@ Kurulum scripti eksik bağımlılıkları otomatik kontrol eder:
 | Gereksinim | Açıklama |
 |------------|----------|
 | 💻 **OS** | macOS, Linux veya Windows 10+ |
+| 📦 **Node.js** | 18.0 veya üzeri |
 | 🐍 **Python** | 3.8 veya üzeri |
 | 📂 **git** | Versiyon kontrol |
-| 🤖 **Claude Code** | Anthropic CLI (önerilir) |
+| 🤖 **Claude Code** | v2.x (önerilir) |
 
 ### ✅ Kurulum Sonrası
 
@@ -323,9 +324,10 @@ The installer automatically checks for missing dependencies:
 | Requirement | Description |
 |-------------|-------------|
 | 💻 **OS** | macOS, Linux, or Windows 10+ |
+| 📦 **Node.js** | 18.0 or higher |
 | 🐍 **Python** | 3.8 or higher |
 | 📂 **git** | Version control |
-| 🤖 **Claude Code** | Anthropic CLI (recommended) |
+| 🤖 **Claude Code** | v2.x (recommended) |
 
 ### ✅ After Installation
 
