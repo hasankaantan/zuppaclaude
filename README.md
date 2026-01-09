@@ -52,8 +52,12 @@ curl -fsSL https://raw.githubusercontent.com/hasankaantan/zuppaclaude/main/insta
 curl -fsSL https://cdn.jsdelivr.net/gh/hasankaantan/zuppaclaude@main/install.sh | bash
 ```
 
-**🪟 Windows (PowerShell):**
+**🪟 Windows:**
 ```powershell
+# Winget ile (önerilen)
+winget install Anthropic.ClaudeCode
+
+# veya PowerShell script ile
 irm https://raw.githubusercontent.com/hasankaantan/zuppaclaude/main/install.ps1 | iex
 ```
 
@@ -312,8 +316,12 @@ curl -fsSL https://raw.githubusercontent.com/hasankaantan/zuppaclaude/main/insta
 curl -fsSL https://cdn.jsdelivr.net/gh/hasankaantan/zuppaclaude@main/install.sh | bash
 ```
 
-**🪟 Windows (PowerShell):**
+**🪟 Windows:**
 ```powershell
+# With Winget (recommended)
+winget install Anthropic.ClaudeCode
+
+# or PowerShell script
 irm https://raw.githubusercontent.com/hasankaantan/zuppaclaude/main/install.ps1 | iex
 ```
 

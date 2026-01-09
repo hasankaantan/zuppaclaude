@@ -37,7 +37,8 @@
   "files": [
     "bin",
     "lib",
-    "assets"
+    "assets",
+    "CHANGELOG.md"
   ],
   "dependencies": {}
 }
