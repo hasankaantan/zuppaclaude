@@ -254,6 +254,32 @@ async function main() {
         }
         break;
 
+      case 'ralph':
+      case 'r':
+        const { RalphManager } = require('../lib/components/ralph');
+        const ralph = new RalphManager();
+        const ralphCmd = args[1] || 'help';
+        const ralphArg = args[2];
+
+        switch (ralphCmd) {
+          case 'init':
+            await ralph.init();
+            break;
+          case 'run':
+          case 'start':
+            const iterations = parseInt(ralphArg) || 10;
+            await ralph.run(iterations);
+            break;
+          case 'status':
+          case 'st':
+            ralph.status();
+            break;
+          case 'help':
+          default:
+            ralph.help();
+        }
+        break;
+
       case 'version':
       case 'v':
       case '-v':
@@ -295,6 +321,7 @@ Commands:
   settings, s         Manage settings
   session             Manage Claude Code sessions
   cloud               Manage cloud remotes (rclone)
+  ralph, r            PRD-driven autonomous development
   update              Check for updates and manage auto-update
   version, v          Show version
   help, h             Show this help
@@ -325,6 +352,12 @@ Session Commands:
   session backups      List available backups
   session restore      Restore sessions only
   session export       Export a specific session
+
+Ralph Commands (PRD-driven development):
+  ralph init           Initialize Ralph in current project
+  ralph run [n]        Run Ralph loop (default: 10 iterations)
+  ralph status         Show PRD status
+  ralph help           Show Ralph help
 
 Examples:
   npx zuppaclaude                              # Install

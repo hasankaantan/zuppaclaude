@@ -1,0 +1,45 @@
+{
+  "name": "feature-name",
+  "branch": "feature/my-feature",
+  "description": "Brief description of the feature",
+  "stories": [
+    {
+      "id": "US-001",
+      "title": "Database Schema",
+      "description": "Add necessary database changes",
+      "acceptance": [
+        "Migration file created",
+        "Types updated",
+        "Typecheck passes"
+      ],
+      "priority": 1,
+      "passes": false
+    },
+    {
+      "id": "US-002",
+      "title": "API Endpoint",
+      "description": "Create REST API endpoint",
+      "acceptance": [
+        "GET /api/resource returns data",
+        "POST /api/resource creates resource",
+        "Error handling implemented",
+        "Tests pass"
+      ],
+      "priority": 2,
+      "passes": false
+    },
+    {
+      "id": "US-003",
+      "title": "UI Component",
+      "description": "Build frontend component",
+      "acceptance": [
+        "Component renders correctly",
+        "Handles loading state",
+        "Handles error state",
+        "Responsive design"
+      ],
+      "priority": 3,
+      "passes": false
+    }
+  ]
+}

@@ -245,6 +245,36 @@ npx zuppaclaude cloud backups gdrive   # 📦 Cloud'daki yedekleri listele
 | ☁️ 40+ cloud | rclone ile Google Drive, Dropbox, S3, SFTP... |
 | 🔐 Encryption | rclone encryption desteği |
 
+### 🤖 Ralph (Otonom PRD Geliştirme)
+
+PRD (Product Requirements Document) dosyasındaki user story'leri otomatik olarak implement eden otonom AI agent döngüsü.
+
+**🚀 Başlatma:**
+```bash
+npx zuppaclaude ralph init       # 📁 Proje dosyalarını oluştur
+npx zuppaclaude ralph run        # 🔄 Döngüyü başlat (varsayılan: 10 iterasyon)
+npx zuppaclaude ralph run 20     # 🔄 20 iterasyon ile çalıştır
+npx zuppaclaude ralph status     # 📊 PRD durumunu göster
+```
+
+**📂 Dosyalar:**
+| Dosya | Açıklama |
+|-------|----------|
+| `prd.json` | User story'ler ve pass/fail durumu |
+| `ralph-prompt.md` | Her iterasyona verilen talimatlar |
+| `progress.txt` | Öğrenilen şeyler (kalıcı bellek) |
+| `AGENTS.md` | Kod pattern'leri ve convention'lar |
+
+**🔄 Nasıl Çalışır:**
+1. PRD'den en yüksek öncelikli incomplete story'yi seçer
+2. Minimal, focused değişiklikler yapar
+3. Quality check'leri çalıştırır (typecheck, lint, test)
+4. `progress.txt`'e öğrenilenleri yazar
+5. Story'yi `passes: true` olarak işaretler
+6. Sonraki iterasyona geçer
+
+> 💡 [snarktank/ralph](https://github.com/snarktank/ralph) projesinden esinlenilmiştir.
+
 ### 🗑️ Kaldırma
 
 **📦 NPM ile:**
@@ -519,6 +549,36 @@ npx zuppaclaude cloud backups gdrive   # 📦 List cloud backups
 | ☁️ 40+ clouds | Google Drive, Dropbox, S3, SFTP via rclone |
 | 🔐 Encryption | rclone encryption support |
 
+### 🤖 Ralph (Autonomous PRD Development)
+
+Autonomous AI agent loop that implements user stories from a PRD (Product Requirements Document) automatically.
+
+**🚀 Getting Started:**
+```bash
+npx zuppaclaude ralph init       # 📁 Create project files
+npx zuppaclaude ralph run        # 🔄 Start loop (default: 10 iterations)
+npx zuppaclaude ralph run 20     # 🔄 Run with 20 iterations
+npx zuppaclaude ralph status     # 📊 Show PRD status
+```
+
+**📂 Files:**
+| File | Description |
+|------|-------------|
+| `prd.json` | User stories with pass/fail status |
+| `ralph-prompt.md` | Instructions for each iteration |
+| `progress.txt` | Learnings (persistent memory) |
+| `AGENTS.md` | Code patterns and conventions |
+
+**🔄 How it Works:**
+1. Selects highest priority incomplete story from PRD
+2. Makes minimal, focused changes
+3. Runs quality checks (typecheck, lint, test)
+4. Documents learnings in `progress.txt`
+5. Marks story as `passes: true`
+6. Moves to next iteration
+
+> 💡 Inspired by [snarktank/ralph](https://github.com/snarktank/ralph)
+
 ### 🗑️ Uninstall
 
 **📦 Via NPM:**
@@ -577,6 +637,7 @@ Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 | [Spec Kit](https://github.com/github/spec-kit) | GitHub |
 | [z.ai](https://z.ai) | Z.AI |
 | [Claude HUD](https://github.com/jarrodwatts/claude-hud) | Jarrod Watts |
+| [Ralph](https://github.com/snarktank/ralph) | Snarktank |
 
 ## 📄 License
 
