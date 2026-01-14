@@ -254,6 +254,14 @@ async function main() {
         }
         break;
 
+      case 'doctor':
+      case 'doc':
+      case 'd':
+        const { DoctorManager } = require('../lib/components/doctor');
+        const doctor = new DoctorManager();
+        await doctor.run();
+        break;
+
       case 'ralph':
       case 'r':
         const { RalphManager } = require('../lib/components/ralph');
@@ -316,6 +324,7 @@ Usage: zuppaclaude [command] [options]
 Commands:
   install, i          Install ZuppaClaude components (default)
   uninstall, u        Uninstall ZuppaClaude components
+  doctor, d           System health check and diagnostics
   backup              Full backup (sessions + settings) with cloud support
   restore             Restore from backup
   settings, s         Manage settings

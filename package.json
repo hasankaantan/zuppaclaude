@@ -1,6 +1,6 @@
 {
   "name": "zuppaclaude",
-  "version": "1.4.0",
+  "version": "1.5.0",
   "description": "Claude Code power-up installer - SuperClaude + Spec Kit + Claude-Z + Claude HUD",
   "main": "lib/index.js",
   "bin": {

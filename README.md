@@ -174,6 +174,29 @@ Ardından Claude Code içinde:
 /claude-hud:setup
 ```
 
+### 🩺 Sistem Kontrolü (Doctor)
+
+ZuppaClaude kurulumunuzun sağlığını kontrol edin:
+
+```bash
+npx zuppaclaude doctor    # 🔍 Sistem kontrolü
+```
+
+Veya Claude Code içinden:
+```
+/zc:doctor
+```
+
+**🔍 Kontrol Edilen Öğeler:**
+| Kategori | Kontroller |
+|----------|------------|
+| 💻 Sistem | OS, Node.js versiyonu, disk alanı |
+| 🤖 Claude Code | Versiyon, güncellik, dizin |
+| 📦 ZuppaClaude | Versiyon, güncellik, ayarlar |
+| 🧩 Bileşenler | SuperClaude, Spec Kit, Claude-Z, HUD, rclone |
+| 🔧 Bağımlılıklar | Git, Python, Pip |
+| 🌐 Ortam | Environment variables |
+
 ### ⚙️ Ayar Yönetimi
 
 ZuppaClaude seçimlerinizi kaydeder ve tekrar kurulumda otomatik kullanır.
@@ -467,6 +490,29 @@ Then inside Claude Code:
 /plugin install claude-hud
 /claude-hud:setup
 ```
+
+### 🩺 System Health Check (Doctor)
+
+Check your ZuppaClaude installation health:
+
+```bash
+npx zuppaclaude doctor    # 🔍 System health check
+```
+
+Or from within Claude Code:
+```
+/zc:doctor
+```
+
+**🔍 What it Checks:**
+| Category | Checks |
+|----------|--------|
+| 💻 System | OS, Node.js version, disk space |
+| 🤖 Claude Code | Version, updates, directory |
+| 📦 ZuppaClaude | Version, updates, settings |
+| 🧩 Components | SuperClaude, Spec Kit, Claude-Z, HUD, rclone |
+| 🔧 Dependencies | Git, Python, Pip |
+| 🌐 Environment | Environment variables |
 
 ### ⚙️ Settings Management
 
